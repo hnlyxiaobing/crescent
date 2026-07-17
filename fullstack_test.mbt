@@ -15,7 +15,7 @@ struct Todo {
   id : Int
   title : String
   done : Bool
-} derive(ToJson, FromJson, Eq)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 impl Show for Todo with output(self, logger) {
@@ -41,7 +41,7 @@ struct UserProfile {
   name : String
   email : String
   tags : Array[String]
-} derive(ToJson, FromJson, Eq)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 impl Show for UserProfile with output(self, logger) {
@@ -137,7 +137,8 @@ async test "full-stack: get single todo by id" {
   let res = client.get("/api/todos/1")
   assert_eq(res.status, OK)
   let todo : Todo = res.body_json()
-  assert_eq(todo, { id: 1, title: "Learn MoonBit", done: true })
+  let expected_todo = Todo::{ id: 1, title: "Learn MoonBit", done: true }
+  assert_eq(todo, expected_todo)
 }
 
 ///|

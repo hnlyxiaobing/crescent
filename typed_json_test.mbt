@@ -3,7 +3,7 @@
 struct TestUser {
   name : String
   age : Int
-} derive(FromJson, ToJson, Eq)
+} derive(FromJson, ToJson, Eq, Debug)
 
 ///|
 impl Show for TestUser with output(self, logger) {
@@ -23,7 +23,8 @@ test "HttpRequest::json parses struct from body" {
     raw_body=b"{\"name\":\"Alice\",\"age\":30}",
   )
   let user : TestUser = req.json()
-  assert_eq(user, { name: "Alice", age: 30 })
+  let expected_user = TestUser::{ name: "Alice", age: 30 }
+  assert_eq(user, expected_user)
 }
 
 ///|
