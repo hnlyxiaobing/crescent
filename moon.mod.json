@@ -1,12 +1,12 @@
 {
-  "name": "bobzhang/crescent",
-  "version": "0.10.0",
+  "name": "hnlyxiaobing/crescent",
+  "version": "0.10.1",
   "deps": {
     "moonbitlang/x": "0.4.41",
     "moonbitlang/async": "0.17.0"
   },
   "readme": "README.md",
-  "repository": "https://github.com/bobzhang/crescent",
+  "repository": "https://github.com/hnlyxiaobing/crescent",
   "license": "Apache-2.0",
   "keywords": [
     "http",
@@ -16,6 +16,6 @@
     "async",
     "ai-friendly"
   ],
-  "description": "Crescent: A web framework for MoonBit.",
+  "description": "Crescent: A web framework for MoonBit. Fork of bobzhang/crescent with Debug trait fix for wbtest.",
   "preferred-target": "native"
 }

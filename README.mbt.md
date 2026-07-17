@@ -1,3 +1,23 @@
+# Crescent (hnlyxiaobing fork)
+
+> **This is a fork of [bobzhang/crescent](https://github.com/bobzhang/crescent) at v0.10.0.**
+>
+> **Why this fork exists**: The upstream `bobzhang/crescent@0.10.0` has a white-box test
+> (`core/request.mbt`, test `"try_json returns Ok on valid json"`) that fails to compile
+> under current MoonBit trait rules. The test uses `assert_eq` with an anonymous struct
+> literal `Ok({ name: "Alice", age: 30 })`, but `TryJsonTestUser` does not derive `Debug`,
+> which `assert_eq` requires to format failure messages.
+>
+> **Fix applied**: Added `Debug` to `derive(...)` on `TryJsonTestUser` and bound the
+> expected value to a local variable before calling `assert_eq`.
+>
+> **Plan**: We will submit this fix as a PR to upstream. Once merged and released,
+> this fork will be deprecated in favor of `bobzhang/crescent`.
+>
+> **Original README below** (unchanged except for this notice):
+>
+> ---
+
 # Crescent
 
 A web framework for MoonBit. Native-first, type-safe, AI-agent friendly.
@@ -14,7 +34,7 @@ A web framework for MoonBit. Native-first, type-safe, AI-agent friendly.
 ## Install
 
 ```bash
-moon add bobzhang/crescent
+moon add hnlyxiaobing/crescent
 ```
 
 ## Hello World
