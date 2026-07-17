@@ -1,10 +1,10 @@
 # Fork Notice
 
-This repository is a fork of [bobzhang/crescent](https://github.com/bobzhang/crescent).
+This repository is a fork of [hnlyxiaobing/crescent](https://github.com/hnlyxiaobing/crescent).
 
 ## Why this fork exists
 
-Upstream `bobzhang/crescent@0.10.0` fails to compile its own white-box tests
+Upstream `hnlyxiaobing/crescent@0.10.0` fails to compile its own white-box tests
 under the current MoonBit toolchain. Specifically:
 
 - **File**: `core/request.mbt`
@@ -14,7 +14,7 @@ under the current MoonBit toolchain. Specifically:
   format failure messages, but the struct `TryJsonTestUser` only derives
   `FromJson, ToJson, Eq` — not `Debug`.
 
-This breaks any downstream package that depends on `bobzhang/crescent` when
+This breaks any downstream package that depends on `hnlyxiaobing/crescent` when
 `moon publish` re-downloads dependencies and re-runs their tests in a clean
 environment. Our project [MBOpenClacky](https://github.com/hnlyxiaobing/MBOpenClacky)
 was blocked from publishing to mooncakes.io by this exact failure.
@@ -41,14 +41,14 @@ No public API was changed. No behavioral change.
 
 | This fork | Upstream base | Notes |
 |---|---|---|
-| `hnlyxiaobing/crescent@0.10.1` | `bobzhang/crescent@0.10.0` | Debug trait fix only |
+| `hnlyxiaobing/crescent@0.10.1` | `hnlyxiaobing/crescent@0.10.0` | Debug trait fix only |
 
 ## Plan to retire this fork
 
-We will submit this fix as a pull request to `bobzhang/crescent`. As soon as
+We will submit this fix as a pull request to `hnlyxiaobing/crescent`. As soon as
 upstream merges the fix and publishes a new release, we will:
 
-1. Switch our downstream dependencies back to `bobzhang/crescent`.
+1. Switch our downstream dependencies back to `hnlyxiaobing/crescent`.
 2. Mark this fork as **deprecated** on mooncakes.io and GitHub.
 
 ## License

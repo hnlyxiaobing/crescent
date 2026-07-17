@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "bobzhang/crescent"
+package "hnlyxiaobing/crescent"
 
 import {
-  "bobzhang/crescent/core",
-  "bobzhang/crescent/websocket",
+  "hnlyxiaobing/crescent/core",
+  "hnlyxiaobing/crescent/websocket",
   "moonbitlang/async/aqueue",
   "moonbitlang/async/http",
   "moonbitlang/core/buffer",

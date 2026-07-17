@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "bobzhang/crescent/middleware"
+package "hnlyxiaobing/crescent/middleware"
 
 import {
-  "bobzhang/crescent",
+  "hnlyxiaobing/crescent",
 }
 
 // Values

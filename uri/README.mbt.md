@@ -54,11 +54,11 @@ trailing slashes are dropped (`/a/b/` parses to `["a", "b"]`).
 
 ## Install
 
-This package is included with `bobzhang/crescent`. Import it directly:
+This package is included with `hnlyxiaobing/crescent`. Import it directly:
 
 ```
 import {
-  "bobzhang/crescent/uri"
+  "hnlyxiaobing/crescent/uri"
   ...
 }
 ```

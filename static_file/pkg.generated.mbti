@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "bobzhang/crescent/static_file"
+package "hnlyxiaobing/crescent/static_file"
 
 import {
-  "bobzhang/crescent",
-  "bobzhang/crescent/core",
+  "hnlyxiaobing/crescent",
+  "hnlyxiaobing/crescent/core",
 }
 
 // Values

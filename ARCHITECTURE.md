@@ -1,6 +1,6 @@
 # Crescent Architecture Guide
 
-> **Crescent** (`bobzhang/crescent`) is a native-first, type-safe, async HTTP and
+> **Crescent** (`hnlyxiaobing/crescent`) is a native-first, type-safe, async HTTP and
 > WebSocket server framework for [MoonBit](https://docs.moonbitlang.com). Version
 > 0.10.0. Apache-2.0 licensed.
 
@@ -290,7 +290,7 @@ under the root and is reused by `fetch/`, decoupling the HTTP client.
 
 ```mermaid
 graph LR
-    ROOT["<b>root</b><br/>bobzhang/crescent"]
+    ROOT["<b>root</b><br/>hnlyxiaobing/crescent"]
     CORE_PKG["core/"]
     ROUTER["router/"]
     HTTP["httputil/"]

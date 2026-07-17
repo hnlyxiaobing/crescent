@@ -25,7 +25,7 @@ pub fn[T : @json.FromJson] Event::try_json(self : Event) -> Result[T, String] {
 
 ///|
 /// Returns the request ID for this event, or `None` if the `request_id`
-/// middleware from `bobzhang/crescent/middleware` is not active.
+/// middleware from `hnlyxiaobing/crescent/middleware` is not active.
 pub fn Event::request_id(self : Event) -> String? {
   self.req.get_header("X-Request-Id")
 }

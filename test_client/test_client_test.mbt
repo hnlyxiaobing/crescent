@@ -71,7 +71,7 @@ async test "test client custom not found handler" {
 ///|
 async test "test client runs middleware" {
   // Uses an inline custom middleware rather than a named one from
-  // bobzhang/crescent/middleware — this test verifies that @test_client.TestClient
+  // hnlyxiaobing/crescent/middleware — this test verifies that @test_client.TestClient
   // dispatches requests through the middleware chain, not that any
   // particular middleware behaves correctly.
   let mut ran = false

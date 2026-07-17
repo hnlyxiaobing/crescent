@@ -32,11 +32,11 @@ This package provides:
 
 ## Install
 
-This package is included with `bobzhang/crescent`. Import it directly:
+This package is included with `hnlyxiaobing/crescent`. Import it directly:
 
 ```
 import {
-  "bobzhang/crescent/test_client"
+  "hnlyxiaobing/crescent/test_client"
   ...
 }
 ```
@@ -46,7 +46,7 @@ Because it exists solely for test code, most packages pull it in under a
 
 ```
 import {
-  "bobzhang/crescent/test_client",
+  "hnlyxiaobing/crescent/test_client",
 } for "test"
 ```
 

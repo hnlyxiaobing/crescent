@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "bobzhang/crescent/test_client"
+package "hnlyxiaobing/crescent/test_client"
 
 import {
-  "bobzhang/crescent",
-  "bobzhang/crescent/core",
+  "hnlyxiaobing/crescent",
+  "hnlyxiaobing/crescent/core",
   "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }

@@ -1,8 +1,8 @@
 # Crescent (hnlyxiaobing fork)
 
-> **This is a fork of [bobzhang/crescent](https://github.com/bobzhang/crescent) at v0.10.0.**
+> **This is a fork of [hnlyxiaobing/crescent](https://github.com/hnlyxiaobing/crescent) at v0.10.0.**
 >
-> **Why this fork exists**: The upstream `bobzhang/crescent@0.10.0` has a white-box test
+> **Why this fork exists**: The upstream `hnlyxiaobing/crescent@0.10.0` has a white-box test
 > (`core/request.mbt`, test `"try_json returns Ok on valid json"`) that fails to compile
 > under current MoonBit trait rules. The test uses `assert_eq` with an anonymous struct
 > literal `Ok({ name: "Alice", age: 30 })`, but `TryJsonTestUser` does not derive `Debug`,
@@ -12,7 +12,7 @@
 > expected value to a local variable before calling `assert_eq`.
 >
 > **Plan**: We will submit this fix as a PR to upstream. Once merged and released,
-> this fork will be deprecated in favor of `bobzhang/crescent`.
+> this fork will be deprecated in favor of `hnlyxiaobing/crescent`.
 >
 > **Original README below** (unchanged except for this notice):
 >
@@ -741,7 +741,7 @@ For custom error responses, use `try_json`:
 
 ## Built-in Middleware
 
-Middleware implementations live in the `bobzhang/crescent/middleware` sub-package.
+Middleware implementations live in the `hnlyxiaobing/crescent/middleware` sub-package.
 
 | Middleware | What it does |
 |-----------|-------------|
@@ -912,13 +912,13 @@ test "HttpMethod pattern matching" {
 ## Packages
 
 ```
-bobzhang/crescent             — Core: routing, middleware, serving, WebSocket
-bobzhang/crescent/httputil    — HTTP protocol: headers, dates, URL encoding
-bobzhang/crescent/cors        — CORS middleware
-bobzhang/crescent/fetch       — HTTP client
-bobzhang/crescent/static_file — Static file provider (filesystem)
-bobzhang/crescent/test_client — In-process test client (no network I/O)
-bobzhang/crescent/uri         — RFC 3986 URI parser
+hnlyxiaobing/crescent             — Core: routing, middleware, serving, WebSocket
+hnlyxiaobing/crescent/httputil    — HTTP protocol: headers, dates, URL encoding
+hnlyxiaobing/crescent/cors        — CORS middleware
+hnlyxiaobing/crescent/fetch       — HTTP client
+hnlyxiaobing/crescent/static_file — Static file provider (filesystem)
+hnlyxiaobing/crescent/test_client — In-process test client (no network I/O)
+hnlyxiaobing/crescent/uri         — RFC 3986 URI parser
 ```
 
 ## Credits

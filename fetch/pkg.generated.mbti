@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "bobzhang/crescent/fetch"
+package "hnlyxiaobing/crescent/fetch"
 
 import {
-  "bobzhang/crescent/core",
+  "hnlyxiaobing/crescent/core",
   "moonbitlang/core/debug",
 }
 

@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "bobzhang/crescent/cookie"
+package "hnlyxiaobing/crescent/cookie"
 
 import {
   "moonbitlang/core/debug",

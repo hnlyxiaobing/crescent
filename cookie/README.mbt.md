@@ -62,11 +62,11 @@ This package provides:
 
 ## Install
 
-This package is included with `bobzhang/crescent`. Import it directly:
+This package is included with `hnlyxiaobing/crescent`. Import it directly:
 
 ```
 import {
- "bobzhang/crescent/cookie"
+ "hnlyxiaobing/crescent/cookie"
  ...
 }
 ```

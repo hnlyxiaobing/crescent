@@ -1,7 +1,7 @@
 import {
   "moonbitlang/async",
-  "bobzhang/crescent",
-  "bobzhang/crescent/static_file",
+  "hnlyxiaobing/crescent",
+  "hnlyxiaobing/crescent/static_file",
 }
 
 options(
