@@ -111,7 +111,7 @@ async fn allocate_test_server() -> @http.Server {
   let addr = @socket.Addr::parse("127.0.0.1:0") catch {
     _ => raise SocketBindUnavailable
   }
-  let bind_check : Result[@http.Server, Error] = try? @http.Server::new(
+  let bind_check : Result[@http.Server, Error] = try? @http.Server(
     addr,
     reuse_addr=true,
   )
@@ -160,7 +160,7 @@ async fn issue_request(
   path : String,
   headers? : Map[String, String],
 ) -> (@http.Response, Bytes) {
-  let client = @http.Client::new("http://127.0.0.1:\{port}")
+  let client = @http.Client("http://127.0.0.1:\{port}")
   defer client.close()
   client.request(meth, path, extra_headers=headers.unwrap_or({}))
   let response = client.end_request()
@@ -181,7 +181,7 @@ async fn issue_raw_request_headers(port : Int, request : String) -> String {
 
 ///|
 async test "handle_cors serves preflight requests through async server" {
-  let handler_called = Ref::new(false)
+  let handler_called = Ref(false)
   let app = @crescent.App()
   app.use_middleware(
     handle_cors(
@@ -253,7 +253,7 @@ async test "handle_cors decorates normal requests through async server" {
 
 ///|
 async test "handle_cors does not short-circuit non-preflight options" {
-  let handler_called = Ref::new(false)
+  let handler_called = Ref(false)
   let app = @crescent.App()
   app.use_middleware(
     handle_cors(

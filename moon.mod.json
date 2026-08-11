@@ -1,9 +1,9 @@
 {
   "name": "hnlyxiaobing/crescent",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "deps": {
-    "moonbitlang/x": "0.4.41",
-    "moonbitlang/async": "0.20.2"
+    "moonbitlang/x": "0.4.49",
+    "moonbitlang/async": "0.20.4"
   },
   "readme": "README.md",
   "repository": "https://github.com/hnlyxiaobing/crescent",

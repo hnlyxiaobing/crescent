@@ -15,7 +15,7 @@ async fn allocate_test_server() -> @http.Server {
   let addr = @socket.Addr::parse("127.0.0.1:0") catch {
     _ => raise SocketBindUnavailable
   }
-  let bind_check : Result[@http.Server, Error] = try? @http.Server::new(
+  let bind_check : Result[@http.Server, Error] = try? @http.Server(
     addr,
     reuse_addr=true,
   )
@@ -252,7 +252,7 @@ async fn issue_request(
   body? : Bytes,
   headers? : Map[String, String],
 ) -> (@http.Response, Bytes) {
-  let client = @http.Client::new("http://127.0.0.1:\{port}")
+  let client = @http.Client("http://127.0.0.1:\{port}")
   defer client.close()
   client.request(meth, path, extra_headers=headers.unwrap_or({}))
   match body {
@@ -317,7 +317,7 @@ async fn read_raw_http_response(client : @socket.Tcp) -> (String, String) {
 
 ///|
 fn repeated_ascii_text(piece : String, count : Int) -> String {
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for _ in 0..<count {
     buffer.write_string_utf8(piece)
   }
@@ -328,7 +328,7 @@ fn repeated_ascii_text(piece : String, count : Int) -> String {
 
 ///|
 async fn read_chunked_http_body(client : @socket.Tcp) -> String {
-  let buffer = @buffer.new()
+  let buffer = Buffer()
   for ;; {
     let chunk_len_line = client.read_until("\r\n").unwrap_or("")
     guard chunk_len_line != "" else {
@@ -434,7 +434,7 @@ async fn issue_raw_websocket_close(
   path : String,
   frames : Array[Bytes],
 ) -> (@websocket.CloseCode, String?) {
-  let http_client = @http.Client::new("http://127.0.0.1:\{port}")
+  let http_client = @http.Client("http://127.0.0.1:\{port}")
   defer http_client.close()
   ignore(@websocket.from_http_client(http_client, path))
   for frame in frames {
@@ -592,10 +592,10 @@ async test "serve preserves middleware onion order" {
 
 ///|
 async test "serve keeps invalid websocket opcodes connection-local and stays healthy" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -616,7 +616,7 @@ async test "serve keeps invalid websocket opcodes connection-local and stays hea
     "ok"
   })
   with_test_server(app, port => {
-    let http_client = @http.Client::new("http://127.0.0.1:\{port}")
+    let http_client = @http.Client("http://127.0.0.1:\{port}")
     defer http_client.close()
     let ws_client = @websocket.from_http_client(http_client, "/ws")
     defer ws_client.close()
@@ -672,10 +672,10 @@ async test "serve keeps invalid websocket opcodes connection-local and stays hea
 
 ///|
 async test "serve keeps invalid websocket text payloads connection-local and stays healthy" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -747,10 +747,10 @@ async test "serve keeps invalid websocket text payloads connection-local and sta
 
 ///|
 async test "serve keeps websocket protocol edge failures connection-local and stays healthy" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -776,7 +776,7 @@ async test "serve keeps websocket protocol edge failures connection-local and st
       expected_code : @websocket.CloseCode,
       expected_reason : String,
     ) -> Unit {
-      let http_client = @http.Client::new("http://127.0.0.1:\{port}")
+      let http_client = @http.Client("http://127.0.0.1:\{port}")
       defer http_client.close()
       let ws_client = @websocket.from_http_client(http_client, "/ws")
       defer ws_client.close()
@@ -848,10 +848,10 @@ async test "serve keeps websocket protocol edge failures connection-local and st
 
 ///|
 async test "serve keeps websocket sequencing and control-size failures connection-local and stays healthy" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -939,10 +939,10 @@ async test "serve keeps websocket sequencing and control-size failures connectio
 
 ///|
 async test "serve keeps websocket continuation and length-format failures connection-local and stays healthy" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -1030,10 +1030,10 @@ async test "serve keeps websocket continuation and length-format failures connec
 
 ///|
 async test "serve echoes websocket close reasons and stays healthy" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -1088,10 +1088,10 @@ async test "serve echoes websocket close reasons and stays healthy" {
 
 ///|
 async test "serve rejects invalid websocket close reasons and stays healthy" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -1146,10 +1146,10 @@ async test "serve rejects invalid websocket close reasons and stays healthy" {
 
 ///|
 async test "serve auto-replies to websocket ping frames without leaking control messages" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -1170,7 +1170,7 @@ async test "serve auto-replies to websocket ping frames without leaking control 
     "ok"
   })
   with_test_server(app, port => {
-    let http_client = @http.Client::new("http://127.0.0.1:\{port}")
+    let http_client = @http.Client("http://127.0.0.1:\{port}")
     defer http_client.close()
     let ws_client = @websocket.from_http_client(http_client, "/ws")
     defer ws_client.close()
@@ -1211,10 +1211,10 @@ async test "serve auto-replies to websocket ping frames without leaking control 
 
 ///|
 async test "serve ignores unsolicited websocket pong frames without leaking control messages" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -1235,7 +1235,7 @@ async test "serve ignores unsolicited websocket pong frames without leaking cont
     "ok"
   })
   with_test_server(app, port => {
-    let http_client = @http.Client::new("http://127.0.0.1:\{port}")
+    let http_client = @http.Client("http://127.0.0.1:\{port}")
     defer http_client.close()
     let ws_client = @websocket.from_http_client(http_client, "/ws")
     defer ws_client.close()
@@ -1272,10 +1272,10 @@ async test "serve ignores unsolicited websocket pong frames without leaking cont
 
 ///|
 async test "serve routes fragmented websocket messages while replying to in-flight pings" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -1296,7 +1296,7 @@ async test "serve routes fragmented websocket messages while replying to in-flig
     "ok"
   })
   with_test_server(app, port => {
-    let http_client = @http.Client::new("http://127.0.0.1:\{port}")
+    let http_client = @http.Client("http://127.0.0.1:\{port}")
     defer http_client.close()
     ignore(@websocket.from_http_client(http_client, "/ws"))
 
@@ -1355,10 +1355,10 @@ async test "serve routes fragmented websocket messages while replying to in-flig
 
 ///|
 async test "serve replies to multiple websocket pings in order without leaking control messages" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
-  let messages : Ref[Int] = Ref::new(0)
-  let healthy_hits : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
+  let messages : Ref[Int] = Ref(0)
+  let healthy_hits : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.ws("/ws", event => {
     match event {
@@ -1379,7 +1379,7 @@ async test "serve replies to multiple websocket pings in order without leaking c
     "ok"
   })
   with_test_server(app, port => {
-    let http_client = @http.Client::new("http://127.0.0.1:\{port}")
+    let http_client = @http.Client("http://127.0.0.1:\{port}")
     defer http_client.close()
     ignore(@websocket.from_http_client(http_client, "/ws"))
 
@@ -1449,8 +1449,8 @@ async test "serve replies to multiple websocket pings in order without leaking c
 ///|
 async test "serve_on enforces max_connections" {
   let app = @crescent.App()
-  let gate = @async.Queue::new(kind=Unbounded)
-  let started : Ref[Int] = Ref::new(0)
+  let gate = @async.Queue(kind=Unbounded)
+  let started : Ref[Int] = Ref(0)
   app.get("/serial", _ => {
     started.val += 1
     ignore(try? gate.get())
@@ -1551,7 +1551,7 @@ async test "serve rejects non-positive max_connections" {
 ///|
 async test "serve_on enforces max_request_body_bytes for fixed-length bodies" {
   let app = @crescent.App()
-  let handled : Ref[Int] = Ref::new(0)
+  let handled : Ref[Int] = Ref(0)
   app.post("/body", event => {
     handled.val += 1
     event.req.raw_body
@@ -1602,7 +1602,7 @@ async test "serve_on enforces max_request_body_bytes for fixed-length bodies" {
 ///|
 async test "serve_on treats max_request_body_bytes=0 as empty-body only" {
   let app = @crescent.App()
-  let handled : Ref[Int] = Ref::new(0)
+  let handled : Ref[Int] = Ref(0)
   app.post("/body", event => {
     handled.val += 1
     event.req.raw_body.length().to_string()
@@ -1674,7 +1674,7 @@ async test "serve_on treats max_request_body_bytes=0 as empty-body only" {
 ///|
 async test "serve_on enforces max_request_body_bytes for chunked bodies" {
   let app = @crescent.App()
-  let handled : Ref[Int] = Ref::new(0)
+  let handled : Ref[Int] = Ref(0)
   app.post("/body", event => {
     handled.val += 1
     event.req.raw_body
@@ -1721,7 +1721,7 @@ async test "serve_on enforces max_request_body_bytes for chunked bodies" {
 ///|
 async test "serve_on accepts exact-limit chunked bodies across multiple reads" {
   let app = @crescent.App()
-  let handled : Ref[Int] = Ref::new(0)
+  let handled : Ref[Int] = Ref(0)
   app.post("/body", event => {
     handled.val += 1
     event.req.raw_body.length().to_string()
@@ -1781,7 +1781,7 @@ async test "serve_on_until rejects negative max_request_body_bytes" {
   let app = @crescent.App()
   let server = allocate_test_server()
   defer server.close()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve_on(
     server,
     shutdown~,
@@ -1831,7 +1831,7 @@ async test "serve_on_until rejects non-positive request_body_read_timeout_ms" {
   let app = @crescent.App()
   let server = allocate_test_server()
   defer server.close()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve_on(
     server,
     shutdown~,
@@ -1866,7 +1866,7 @@ async test "serve rejects non-positive request_body_read_timeout_ms" {
 ///|
 async test "serve_until rejects non-positive request_body_read_timeout_ms" {
   let app = @crescent.App()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve(
     port=0,
     shutdown~,
@@ -1904,7 +1904,7 @@ async test "serve_on_until rejects non-positive websocket_outgoing_queue_capacit
   let app = @crescent.App()
   let server = allocate_test_server()
   defer server.close()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve_on(
     server,
     shutdown~,
@@ -1942,7 +1942,7 @@ async test "serve rejects non-positive websocket_outgoing_queue_capacity" {
 ///|
 async test "serve_until rejects non-positive websocket_outgoing_queue_capacity" {
   let app = @crescent.App()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve(
     port=0,
     shutdown~,
@@ -1981,7 +1981,7 @@ async test "serve_on_until rejects non-positive websocket_read_timeout_ms" {
   let app = @crescent.App()
   let server = allocate_test_server()
   defer server.close()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve_on(
     server,
     shutdown~,
@@ -2014,7 +2014,7 @@ async test "serve rejects non-positive websocket_read_timeout_ms" {
 ///|
 async test "serve_until rejects non-positive websocket_read_timeout_ms" {
   let app = @crescent.App()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve(
     port=0,
     shutdown~,
@@ -2050,7 +2050,7 @@ async test "serve_on_until rejects negative websocket_max_message_bytes" {
   let app = @crescent.App()
   let server = allocate_test_server()
   defer server.close()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve_on(
     server,
     shutdown~,
@@ -2085,7 +2085,7 @@ async test "serve rejects negative websocket_max_message_bytes" {
 ///|
 async test "serve_until rejects negative websocket_max_message_bytes" {
   let app = @crescent.App()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve(
     port=0,
     shutdown~,
@@ -2103,7 +2103,7 @@ async test "serve_until rejects negative websocket_max_message_bytes" {
 ///|
 async test "serve_on times out slow request bodies" {
   let app = @crescent.App()
-  let handled : Ref[Int] = Ref::new(0)
+  let handled : Ref[Int] = Ref(0)
   app.post("/body", event => {
     handled.val += 1
     event.req.raw_body
@@ -2160,7 +2160,7 @@ async test "serve_on times out slow request bodies" {
 ///|
 async test "serve_until rejects negative max_request_body_bytes" {
   let app = @crescent.App()
-  let shutdown = @async.Queue::new(kind=Unbounded)
+  let shutdown = @async.Queue(kind=Unbounded)
   let result : Result[Unit, Error] = try? app.serve(
     port=0,
     shutdown~,
@@ -2273,7 +2273,7 @@ async test "serve_on_until stops on shutdown signal" {
   @async.with_task_group(group => {
     let server = allocate_test_server()
     let port = server.addr.port()
-    let shutdown = @async.Queue::new(kind=Blocking(0))
+    let shutdown = @async.Queue(kind=Blocking(0))
     let task = group.spawn(no_wait=true, () => {
       try? app.serve_on(server, shutdown~)
     })
@@ -2316,7 +2316,7 @@ async test "serve_on_until broadcasts shutdown when the queue is closed" {
     let server2 = allocate_test_server()
     let port1 = server1.addr.port()
     let port2 = server2.addr.port()
-    let shutdown = @async.Queue::new(kind=Blocking(0))
+    let shutdown = @async.Queue(kind=Blocking(0))
     let task1 = group.spawn(no_wait=true, () => {
       try? app1.serve_on(server1, shutdown~)
     })
@@ -2368,7 +2368,7 @@ async test "serve_until binds by port and stops on shutdown signal" {
   for attempt = 0; attempt < 2_048; attempt = attempt + 1 {
     let port = 40_000 + (start_offset + attempt) % 20_000
     let attempt_result : Result[Bool, Error] = try? @async.with_task_group(group => {
-      let shutdown = @async.Queue::new(kind=Unbounded)
+      let shutdown = @async.Queue(kind=Unbounded)
       let task = group.spawn(no_wait=true, () => {
         try? app.serve(port~, shutdown~)
       })
@@ -3388,7 +3388,7 @@ async test "serve enforces websocket_max_message_bytes across multiple reads" {
 
 ///|
 async test "serve rejects websocket upgrades for http-only routes" {
-  let handled : Ref[Int] = Ref::new(0)
+  let handled : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.get("/ws", _ => {
     handled.val += 1
@@ -3475,8 +3475,8 @@ async test "serve accepts padded websocket handshake headers on matched routes" 
 
 ///|
 async test "serve rejects invalid websocket handshakes on matched routes and stays healthy" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.get("/healthy", _ => "ok")
   app.ws("/ws", event => {
@@ -3519,8 +3519,8 @@ async test "serve rejects invalid websocket handshakes on matched routes and sta
 
 ///|
 async test "serve rejects unsupported websocket versions and non-get upgrades" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.get("/healthy", _ => "ok")
   app.ws("/ws", event => {
@@ -3571,8 +3571,8 @@ async test "serve rejects unsupported websocket versions and non-get upgrades" {
 
 ///|
 async test "serve closes the connection after rejected websocket upgrades" {
-  let opened : Ref[Int] = Ref::new(0)
-  let closed : Ref[Int] = Ref::new(0)
+  let opened : Ref[Int] = Ref(0)
+  let closed : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.get("/healthy", _ => "ok")
   app.ws("/ws", event => {
@@ -3626,9 +3626,9 @@ async test "serve closes the connection after rejected websocket upgrades" {
 
 ///|
 async test "serve rejects malformed websocket-like requests on websocket routes without stealing plain http" {
-  let http_hits : Ref[Int] = Ref::new(0)
-  let ws_opened : Ref[Int] = Ref::new(0)
-  let ws_closed : Ref[Int] = Ref::new(0)
+  let http_hits : Ref[Int] = Ref(0)
+  let ws_opened : Ref[Int] = Ref(0)
+  let ws_closed : Ref[Int] = Ref(0)
   let app = @crescent.App()
   app.get("/ws", _ => {
     http_hits.val += 1
@@ -4081,7 +4081,7 @@ async test "serve_on_until sends going-away close to websocket clients on shutdo
   @async.with_task_group(group => {
     let server = allocate_test_server()
     let port = server.addr.port()
-    let shutdown = @async.Queue::new(kind=Unbounded)
+    let shutdown = @async.Queue(kind=Unbounded)
     let task = group.spawn(no_wait=true, () => app.serve_on(server, shutdown~))
     wait_until_ready(port)
 
@@ -4140,7 +4140,7 @@ async test "serve_on_until broadcasts going-away close when the shutdown queue i
     let server2 = allocate_test_server()
     let port1 = server1.addr.port()
     let port2 = server2.addr.port()
-    let shutdown = @async.Queue::new(kind=Unbounded)
+    let shutdown = @async.Queue(kind=Unbounded)
     let task1 = group.spawn(no_wait=true, () => app.serve_on(server1, shutdown~))
     let task2 = group.spawn(no_wait=true, () => app.serve_on(server2, shutdown~))
     wait_until_ready(port1)
@@ -4241,7 +4241,7 @@ async test "serve_on_until queue close stops remaining reused websocket servers 
     let server2 = allocate_test_server()
     let port1 = server1.addr.port()
     let port2 = server2.addr.port()
-    let shutdown = @async.Queue::new(kind=Unbounded)
+    let shutdown = @async.Queue(kind=Unbounded)
     let task1 = group.spawn(no_wait=true, () => app.serve_on(server1, shutdown~))
     let task2 = group.spawn(no_wait=true, () => app.serve_on(server2, shutdown~))
     wait_until_ready(port1)
@@ -4343,7 +4343,7 @@ async test "serve_on_until shutdown signal wakes one reused websocket server" {
     let server2 = allocate_test_server()
     let port1 = server1.addr.port()
     let port2 = server2.addr.port()
-    let shutdown = @async.Queue::new(kind=Blocking(0))
+    let shutdown = @async.Queue(kind=Blocking(0))
     let task1 = group.spawn(no_wait=true, () => app.serve_on(server1, shutdown~))
     let task2 = group.spawn(no_wait=true, () => app.serve_on(server2, shutdown~))
     wait_until_ready(port1)
@@ -4578,7 +4578,7 @@ async test "serve_on_until queue close stops surviving reused websocket server a
     let server2 = allocate_test_server()
     let port1 = server1.addr.port()
     let port2 = server2.addr.port()
-    let shutdown = @async.Queue::new(kind=Blocking(0))
+    let shutdown = @async.Queue(kind=Blocking(0))
     let task1 = group.spawn(no_wait=true, () => app.serve_on(server1, shutdown~))
     let task2 = group.spawn(no_wait=true, () => app.serve_on(server2, shutdown~))
     wait_until_ready(port1)
@@ -4791,7 +4791,7 @@ async test "serve_on_until queue close broadcasts to remaining reused websocket 
     let port1 = server1.addr.port()
     let port2 = server2.addr.port()
     let port3 = server3.addr.port()
-    let shutdown = @async.Queue::new(kind=Blocking(0))
+    let shutdown = @async.Queue(kind=Blocking(0))
     let task1 = group.spawn(no_wait=true, () => app.serve_on(server1, shutdown~))
     let task2 = group.spawn(no_wait=true, () => app.serve_on(server2, shutdown~))
     let task3 = group.spawn(no_wait=true, () => app.serve_on(server3, shutdown~))

@@ -107,7 +107,7 @@ async fn read_native_ws_message_contents(
         },
       )
     Some(limit) => {
-      let buffer = @buffer.new()
+      let buffer = Buffer()
       let mut total = 0
       for ;; {
         let next_chunk_size = next_native_ws_message_chunk_size(limit, total)
@@ -263,7 +263,7 @@ pub async fn handle_route_async(
   let connection_id = next_native_ws_connection_id(runtime_id, hub)
   // Bounded outbound queue. Blocking(cap) means publishers either wait for
   // room or invoke overflow_policy (DropOldest/DropLatest) via ws_publish.
-  let outgoing = @async.Queue::new(kind=Blocking(outgoing_queue_capacity))
+  let outgoing = @async.Queue(kind=Blocking(outgoing_queue_capacity))
   register_native_ws_connection(
     runtime_id, connection_id, outgoing, overflow_policy,
   )

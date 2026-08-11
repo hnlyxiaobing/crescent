@@ -73,7 +73,7 @@ pub fn parse_form_data_str(view : StringView) -> Map[String, String] {
 ///|
 /// Parses URL-encoded form data (e.g. `key=value&foo=bar`) into a map of key-value pairs.
 pub fn parse_form_data(bytes : BytesView) -> Map[String, String] {
-  let res = Map::new()
+  let res = Map([])
   if bytes.length() == 0 {
     return res
   }

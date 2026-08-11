@@ -106,7 +106,7 @@ pub impl Show for CookieItem with output(self, logger) -> Unit {
 
 ///|
 pub impl Show for CookieItem with to_string(self : CookieItem) -> String {
-  let buf = @buffer.new()
+  let buf = Buffer()
   self.output(buf)
   buf.to_string()
 }
@@ -128,16 +128,16 @@ pub fn parse_cookie(cookie : StringView) -> Map[String, CookieItem] {
     }
   }
 
-  let res = Map::new()
+  let res = Map([])
   let mut last_cookie_item : (String, CookieItem)? = None
   fn on_key_value(key : StringView, value : StringView) -> Unit {
     let key = key.to_string()
     let value = dequote(value).to_string()
     if last_cookie_item is Some((name, item)) {
-      let new_item = lexmatch key with longest {
-        "(?i:path)" => { ..item, path: Some(value) }
-        "(?i:domain)" => { ..item, domain: Some(value) }
-        "(?i:max-age)" =>
+      let new_item = match key.to_lower() {
+        "path" => { ..item, path: Some(value) }
+        "domain" => { ..item, domain: Some(value) }
+        "max-age" =>
           {
             ..item,
             max_age: try @string.parse_int(value) catch {
@@ -146,13 +146,13 @@ pub fn parse_cookie(cookie : StringView) -> Map[String, CookieItem] {
               x => Some(x)
             },
           }
-        "(?i:secure)" => { ..item, secure: Some(true) }
-        "(?i:httponly)" => { ..item, http_only: Some(true) }
-        "(?i:samesite)" => {
-          let same_site = lexmatch value with longest {
-            "(?i:lax)" => Some(Lax)
-            "(?i:strict)" => Some(Strict)
-            "(?i:none)" => Some(SameSiteNone)
+        "secure" => { ..item, secure: Some(true) }
+        "httponly" => { ..item, http_only: Some(true) }
+        "samesite" => {
+          let same_site = match value.to_lower() {
+            "lax" => Some(Lax)
+            "strict" => Some(Strict)
+            "none" => Some(SameSiteNone)
             _ => None
           }
           { ..item, same_site, }
@@ -170,31 +170,16 @@ pub fn parse_cookie(cookie : StringView) -> Map[String, CookieItem] {
     last_cookie_item = Some((key, item))
   }
 
-  for curr = cookie {
-    // TODO: more spec compliance
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#attributes
-    lexmatch curr with longest {
-      ("[ \t]+", rest) => continue rest
-      (
-        ("[^ \t=;]([ \t]*[^ \t=;])*" as key)
-        "[ \t]*"
-        "="
-        "[ \t]*"
-        ("[^ \t;]([ \t]*[^ \t;])*" as value)
-        "[ \t]*"
-        ";?",
-        rest
-      ) => {
-        on_key_value(key, value)
-        continue rest
-      }
-      (("[^ \t=;]([ \t]*[^ \t=;])*" as key) "[ \t]*" "(=[ \t]*)?" ";?", rest) => {
-        on_key_value(key, "")
-        continue rest
-      }
-      "" => break
-      _ => break
+  for frag in cookie.split(";") {
+    let frag_trimmed = frag.trim()
+    if frag_trimmed.length() == 0 {
+      continue
     }
+    let (key, value) = match frag_trimmed.find("=") {
+      Some(idx) => (frag_trimmed[0:idx], frag_trimmed[idx + 1:])
+      None => (frag_trimmed, "")
+    }
+    on_key_value(key, value)
   }
   res
 }

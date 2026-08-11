@@ -262,7 +262,7 @@ test "read_body" {
   let req = HttpRequest(
     Post,
     "/",
-    Map::new(),
+    Map([]),
     raw_body=b"{\"Hello\":\"World!\"}",
   )
   let text : String = req.body()

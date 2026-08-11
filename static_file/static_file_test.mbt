@@ -9,7 +9,7 @@ async fn allocate_test_server() -> @http.Server {
   let addr = @socket.Addr::parse("127.0.0.1:0") catch {
     _ => raise SocketBindUnavailable
   }
-  let bind_check : Result[@http.Server, Error] = try? @http.Server::new(
+  let bind_check : Result[@http.Server, Error] = try? @http.Server(
     addr,
     reuse_addr=true,
   )
@@ -58,7 +58,7 @@ async fn issue_request(
   path : String,
   headers? : Map[String, String],
 ) -> (@http.Response, Bytes) {
-  let client = @http.Client::new("http://127.0.0.1:\{port}")
+  let client = @http.Client("http://127.0.0.1:\{port}")
   defer client.close()
   client.request(meth, path, extra_headers=headers.unwrap_or({}))
   let response = client.end_request()

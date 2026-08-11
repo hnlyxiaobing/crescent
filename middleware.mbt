@@ -111,7 +111,7 @@ async test "empty middleware list calls final handler directly" {
   }
   let handler : HttpHandler = _ => "handler-result"
   let result = execute_middlewares([], event, handler)
-  let buf = @buffer.new()
+  let buf = Buffer()
   result.output(buf)
   inspect(@utf8.decode(buf.contents()), content="handler-result")
 }

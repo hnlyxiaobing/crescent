@@ -241,7 +241,7 @@ fn prepare_fetch_payload_bytes(
           match responder_data.output_bytes() {
             Some(bytes) => Some(bytes)
             None => {
-              let body_buf = @buffer.new()
+              let body_buf = Buffer()
               responder_data.output(body_buf)
               Some(body_buf.to_bytes())
             }
@@ -268,7 +268,7 @@ pub async fn fetch(
   ignore(mode)
   let (req_body, req_headers) = prepare_fetch_payload_bytes(body, data, headers)
   let (protocol, host, port, path) = resolve_fetch_url(url)
-  let client = @http.Client::new(fetch_origin(protocol, host, port)) catch {
+  let client = @http.Client(fetch_origin(protocol, host, port)) catch {
     err => raise FetchError::RequestFailed("\{err}")
   }
   defer client.close()

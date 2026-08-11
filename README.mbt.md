@@ -641,7 +641,7 @@ Methods: `@fetch.get`, `@fetch.post`, `@fetch.put`, `@fetch.patch`,
 
 ```moonbit nocheck
   let addr = @socket.Addr::parse("0.0.0.0:4000")
-  let server = @http.Server::new(addr, reuse_addr=true)
+  let server = @http.Server(addr, reuse_addr=true)
   app.serve_on(server)
 ```
 

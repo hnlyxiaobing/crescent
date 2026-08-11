@@ -36,7 +36,7 @@ fn copy_async_headers(headers : Map[String, String]) -> Map[String, String] {
 }
 
 ///|
-let ws_serve_runtime_counter : Ref[Int] = Ref::new(0)
+let ws_serve_runtime_counter : Ref[Int] = Ref(0)
 
 ///|
 fn next_ws_serve_runtime_id(app : App) -> String {
@@ -499,11 +499,11 @@ pub async fn App::serve_on(
           // 4. Inner group waits for handler tasks to finish current requests.
           // 5. Hard timeout (started AFTER shutdown) cancels everything.
           let sem : @async.Semaphore? = match options.max_connections {
-            Some(n) => Some(@async.Semaphore::new(n))
+            Some(n) => Some(@async.Semaphore(n))
             None => None
           }
-          let draining : Ref[Bool] = Ref::new(false)
-          let handlers_drained : @async.Queue[Unit] = @async.Queue::new(
+          let draining : Ref[Bool] = Ref(false)
+          let handlers_drained : @async.Queue[Unit] = @async.Queue(
             kind=Unbounded,
           )
           @async.with_task_group(outer => {

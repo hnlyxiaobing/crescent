@@ -56,7 +56,7 @@ async test "fetch uses async client for request headers and payloads" {
 
 ///|
 async test "fetch preserves explicit content-type without duplicate request headers" {
-  let raw_headers = Ref::new("")
+  let raw_headers = Ref("")
   @async.with_task_group(group => {
     let server = @socket.TcpServer(@socket.Addr::parse("127.0.0.1:0"))
     let port = server.addr.port()
