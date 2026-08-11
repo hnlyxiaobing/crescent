@@ -18,17 +18,6 @@ struct Todo {
 } derive(ToJson, FromJson, Eq, Debug)
 
 ///|
-impl Show for Todo with output(self, logger) {
-  logger.write_string("Todo { id: ")
-  logger.write_object(self.id)
-  logger.write_string(", title: ")
-  logger.write_object(self.title)
-  logger.write_string(", done: ")
-  logger.write_object(self.done)
-  logger.write_string(" }")
-}
-
-///|
 #warnings("-unnecessary_annotation")
 struct CreateTodo {
   title : String
@@ -42,15 +31,6 @@ struct UserProfile {
   email : String
   tags : Array[String]
 } derive(ToJson, FromJson, Eq, Debug)
-
-///|
-impl Show for UserProfile with output(self, logger) {
-  logger.write_string("UserProfile { id: ")
-  logger.write_object(self.id)
-  logger.write_string(", name: ")
-  logger.write_object(self.name)
-  logger.write_string(" }")
-}
 
 ///|
 #warnings("-unnecessary_annotation")
@@ -121,7 +101,7 @@ async test "full-stack: list todos returns json array" {
   let client = @test_client.TestClient(build_todo_app())
   let res = client.get("/api/todos")
   assert_eq(res.status, OK)
-  inspect(
+  debug_inspect(
     res.headers.get("Content-Type"),
     content="Some(\"application/json; charset=utf-8\")",
   )

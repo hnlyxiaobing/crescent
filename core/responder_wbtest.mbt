@@ -3,7 +3,7 @@ test "string responder sets content type" {
   let res = HttpResponse(status_code=OK)
   let responder : &Responder = "hello"
   responder.options(res)
-  inspect(
+  debug_inspect(
     res.headers.get("Content-Type"),
     content="Some(\"text/plain; charset=utf-8\")",
   )
@@ -31,7 +31,7 @@ test "stringview responder sets content type" {
   let s : StringView = "world"[:]
   let responder : &Responder = s
   responder.options(res)
-  inspect(
+  debug_inspect(
     res.headers.get("Content-Type"),
     content="Some(\"text/plain; charset=utf-8\")",
   )
@@ -52,7 +52,7 @@ test "json responder sets content type" {
   let j : Json = { "key": "value" }
   let responder : &Responder = j
   responder.options(res)
-  inspect(
+  debug_inspect(
     res.headers.get("Content-Type"),
     content="Some(\"application/json; charset=utf-8\")",
   )
@@ -74,7 +74,7 @@ test "tojson responder sets content type" {
   let obj : &ToJson = j
   let responder : &Responder = obj
   responder.options(res)
-  inspect(
+  debug_inspect(
     res.headers.get("Content-Type"),
     content="Some(\"application/json; charset=utf-8\")",
   )
@@ -95,7 +95,7 @@ test "bytes responder sets content type" {
   let res = HttpResponse(status_code=OK)
   let responder : &Responder = b"\x01\x02\x03"
   responder.options(res)
-  inspect(
+  debug_inspect(
     res.headers.get("Content-Type"),
     content="Some(\"application/octet-stream\")",
   )
@@ -124,7 +124,7 @@ test "http response responder merges headers" {
   let source = HttpResponse(status_code=OK, headers={ "X-Custom": "test-value" })
   let responder : &Responder = source
   responder.options(res)
-  inspect(res.headers.get("X-Custom"), content="Some(\"test-value\")")
+  debug_inspect(res.headers.get("X-Custom"), content="Some(\"test-value\")")
 }
 
 ///|
@@ -142,7 +142,7 @@ test "http request responder merges headers" {
   let req = HttpRequest(Get, "/", { "X-Forwarded": "proxy" }, raw_body=b"")
   let responder : &Responder = req
   responder.options(res)
-  inspect(res.headers.get("X-Forwarded"), content="Some(\"proxy\")")
+  debug_inspect(res.headers.get("X-Forwarded"), content="Some(\"proxy\")")
 }
 
 ///|
@@ -159,7 +159,7 @@ test "html helper sets content type" {
   let res = HttpResponse(status_code=OK)
   let responder = html("<h1>Hello</h1>")
   responder.options(res)
-  inspect(
+  debug_inspect(
     res.headers.get("Content-Type"),
     content="Some(\"text/html; charset=utf-8\")",
   )
@@ -178,7 +178,7 @@ test "text helper sets content type" {
   let res = HttpResponse(status_code=OK)
   let responder = text("plain text")
   responder.options(res)
-  inspect(
+  debug_inspect(
     res.headers.get("Content-Type"),
     content="Some(\"text/plain; charset=utf-8\")",
   )

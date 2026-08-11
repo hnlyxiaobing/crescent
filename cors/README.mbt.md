@@ -135,13 +135,13 @@ test "append cors headers" {
     origin="https://app.com",
     methods="GET, POST",
   )
-  inspect(
+  debug_inspect(
     event.res.headers.get("Access-Control-Allow-Origin"),
     content=(
       #|Some("https://app.com")
     ),
   )
-  inspect(
+  debug_inspect(
     event.res.headers.get("Access-Control-Allow-Methods"),
     content=(
       #|Some("GET, POST")

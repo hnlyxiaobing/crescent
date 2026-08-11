@@ -113,8 +113,11 @@ test "minimal cookie" {
 ///|
 test "parse a cookie header" {
   let cookies = @cookie.parse_cookie("name=value; session=abc123")
-  inspect(cookies.get("name").map(fn(c) { c.value }), content="Some(\"value\")")
-  inspect(
+  debug_inspect(
+    cookies.get("name").map(fn(c) { c.value }),
+    content="Some(\"value\")",
+  )
+  debug_inspect(
     cookies.get("session").map(fn(c) { c.value }),
     content="Some(\"abc123\")",
   )

@@ -11,7 +11,7 @@ fn normalize_middleware_base_path(base_path : String) -> String {
   if base_path == "" {
     ""
   } else if base_path.length() > 1 && base_path[base_path.length() - 1:] == "/" {
-    base_path[:base_path.length() - 1].to_string()
+    base_path[:base_path.length() - 1].to_owned()
   } else {
     base_path
   }
@@ -136,7 +136,7 @@ async test "single middleware wraps final handler" {
   }
   let middlewares : Array[(String, Middleware)] = [("", mw)]
   ignore(execute_middlewares(middlewares, event, handler))
-  inspect(
+  debug_inspect(
     order,
     content=(
       #|["mw-before", "handler", "mw-after"]
@@ -170,7 +170,7 @@ async test "multiple middlewares execute in onion model order" {
   }
   let middlewares : Array[(String, Middleware)] = [("", mw1), ("", mw2)]
   ignore(execute_middlewares(middlewares, event, handler))
-  inspect(
+  debug_inspect(
     order,
     content=(
       #|["mw1-before", "mw2-before", "handler", "mw2-after", "mw1-after"]
@@ -196,7 +196,7 @@ async test "path-scoped middleware skips non-matching request" {
   }
   let middlewares : Array[(String, Middleware)] = [("/api", mw)]
   ignore(execute_middlewares(middlewares, event, handler))
-  inspect(
+  debug_inspect(
     order,
     content=(
       #|["handler"]
@@ -222,7 +222,7 @@ async test "path-scoped middleware executes for matching request" {
   }
   let middlewares : Array[(String, Middleware)] = [("/api", mw)]
   ignore(execute_middlewares(middlewares, event, handler))
-  inspect(
+  debug_inspect(
     order,
     content=(
       #|["api-mw", "handler"]

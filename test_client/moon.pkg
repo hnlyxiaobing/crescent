@@ -1,5 +1,5 @@
 import {
-  "hnlyxiaobing/crescent" @crescent,
+  "hnlyxiaobing/crescent",
   "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8",
 }

@@ -516,12 +516,12 @@ directory index fallback (`index.html`, `index.htm`, ...).
 ```moonbit nocheck
 ///|
 pub(open) trait ServeStaticProvider {
-  async get_meta(Self, String) -> StaticAssetMeta?
-  async get_contents(Self, String) -> &Responder
-  get_type(Self, String) -> String?
-  get_encodings(Self) -> Map[String, String]
-  get_index_names(Self) -> Array[String]
-  get_fallthrough(Self) -> Bool
+  async fn get_meta(Self, String) -> StaticAssetMeta?
+  async fn get_contents(Self, String) -> &Responder
+  fn get_type(Self, String) -> String?
+  fn get_encodings(Self) -> Map[String, String]
+  fn get_index_names(Self) -> Array[String]
+  fn get_fallthrough(Self) -> Bool
 }
 ```
 
@@ -801,7 +801,7 @@ test "require_param raises on missing" {
     res: HttpResponse(status_code=OK),
     params: {},
   }
-  let result = try? event.require_param_int("id")
+  let result = Ok(event.require_param_int("id")) catch { e => Err(e) }
   assert_true(result is Err(_))
 }
 ```

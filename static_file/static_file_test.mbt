@@ -9,10 +9,11 @@ async fn allocate_test_server() -> @http.Server {
   let addr = @socket.Addr::parse("127.0.0.1:0") catch {
     _ => raise SocketBindUnavailable
   }
-  let bind_check : Result[@http.Server, Error] = try? @http.Server(
-    addr,
-    reuse_addr=true,
-  )
+  let bind_check : Result[@http.Server, Error] = Ok(
+    @http.Server(addr, reuse_addr=true),
+  ) catch {
+    e => Err(e)
+  }
   match bind_check {
     Ok(server) => server
     Err(@os_error.OSError(errno, ..)) if errno == 1 =>
@@ -68,7 +69,7 @@ async fn issue_request(
 
 ///|
 async fn try_remove(path : String) -> Unit noraise {
-  let r : Result[Unit, Error] = try? @fs.remove(path)
+  let r : Result[Unit, Error] = Ok(@fs.remove(path)) catch { e => Err(e) }
   ignore(r)
 }
 
@@ -108,10 +109,11 @@ async test "static_file blocks symlink escaping root" {
   // Remove any pre-existing symlink from prior test runs
   try_remove(link_path)
   // Skip test if we can't create the symlink (e.g., no write perms)
-  let link_created : Result[Unit, Error] = try? @fs.symlink(
-    target="/etc/passwd",
-    link_path,
-  )
+  let link_created : Result[Unit, Error] = Ok(
+    @fs.symlink(target="/etc/passwd", link_path),
+  ) catch {
+    e => Err(e)
+  }
   guard link_created is Ok(_) else { return }
   let provider = @static_file.StaticFileProvider(path="static_file/testdata")
   // The symlink exists inside the root directory but points outside;

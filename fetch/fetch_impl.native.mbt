@@ -80,7 +80,7 @@ fn resolve_fetch_url(
   // HTTP Host header and URL reconstruction.
   let host = match authority.host {
     IPv6Address(addr) => "[\{addr}]"
-    RegName(name) => name.to_string()
+    RegName(name) => name.to_owned()
   }
   guard host != "" && host != "[]" else {
     raise FetchError::RequestFailed("invalid URL: \{url} (empty host)")
@@ -108,7 +108,7 @@ fn resolve_fetch_url(
     path_str = "/"
   }
   match parsed.query {
-    Some(q) => path_str = path_str + "?" + q.to_string()
+    Some(q) => path_str = path_str + "?" + q.to_owned()
     None => ()
   }
   (protocol, host, port, path_str)
@@ -165,19 +165,19 @@ test "resolve_fetch_url IPv6 literal" {
 
 ///|
 test "resolve_fetch_url rejects unsupported scheme" {
-  let res = try? resolve_fetch_url("ftp://example.com/foo")
+  let res = Ok(resolve_fetch_url("ftp://example.com/foo")) catch { e => Err(e) }
   assert_true(res is Err(_))
 }
 
 ///|
 test "resolve_fetch_url rejects invalid URL" {
-  let res = try? resolve_fetch_url("not a url")
+  let res = Ok(resolve_fetch_url("not a url")) catch { e => Err(e) }
   assert_true(res is Err(_))
 }
 
 ///|
 test "resolve_fetch_url rejects empty host" {
-  let res = try? resolve_fetch_url("http:///foo")
+  let res = Ok(resolve_fetch_url("http:///foo")) catch { e => Err(e) }
   assert_true(res is Err(_))
 }
 
@@ -193,7 +193,9 @@ test "resolve_fetch_url handles empty path with query" {
 
 ///|
 test "resolve_fetch_url rejects userinfo" {
-  let res = try? resolve_fetch_url("http://user:pass@example.com/api")
+  let res = Ok(resolve_fetch_url("http://user:pass@example.com/api")) catch {
+    e => Err(e)
+  }
   match res {
     Err(FetchError::RequestFailed(msg)) => assert_true(msg.contains("userinfo"))
     _ => fail("expected FetchError for URL with userinfo")
@@ -202,7 +204,7 @@ test "resolve_fetch_url rejects userinfo" {
 
 ///|
 test "resolve_fetch_url rejects ftp" {
-  let res = try? resolve_fetch_url("ftp://example.com/")
+  let res = Ok(resolve_fetch_url("ftp://example.com/")) catch { e => Err(e) }
   match res {
     Err(FetchError::RequestFailed(msg)) =>
       assert_true(msg.contains("unsupported protocol"))

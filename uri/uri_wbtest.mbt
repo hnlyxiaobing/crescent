@@ -295,68 +295,88 @@ test "RFC 3986 Dot Segment Removal" {
 ///|
 test "parse_percent_encoding accepts only hex digits" {
   // Valid hex digits
-  let ok1 : Result[StringView, ParseError] = try? parse_percent_encoding(
-    "20 rest",
-  )
+  let ok1 : Result[StringView, ParseError] = Ok(
+    parse_percent_encoding("20 rest"),
+  ) catch {
+    e => Err(e)
+  }
   assert_true(ok1 is Ok(_))
-  let ok2 : Result[StringView, ParseError] = try? parse_percent_encoding(
-    "FF end",
-  )
+  let ok2 : Result[StringView, ParseError] = Ok(
+    parse_percent_encoding("FF end"),
+  ) catch {
+    e => Err(e)
+  }
   assert_true(ok2 is Ok(_))
-  let ok3 : Result[StringView, ParseError] = try? parse_percent_encoding(
-    "ab end",
-  )
+  let ok3 : Result[StringView, ParseError] = Ok(
+    parse_percent_encoding("ab end"),
+  ) catch {
+    e => Err(e)
+  }
   assert_true(ok3 is Ok(_))
   // Invalid: non-hex letters
-  let bad1 : Result[StringView, ParseError] = try? parse_percent_encoding(
-    "GG end",
-  )
+  let bad1 : Result[StringView, ParseError] = Ok(
+    parse_percent_encoding("GG end"),
+  ) catch {
+    e => Err(e)
+  }
   assert_true(bad1 is Err(_))
-  let bad2 : Result[StringView, ParseError] = try? parse_percent_encoding(
-    "xz end",
-  )
+  let bad2 : Result[StringView, ParseError] = Ok(
+    parse_percent_encoding("xz end"),
+  ) catch {
+    e => Err(e)
+  }
   assert_true(bad2 is Err(_))
-  let bad3 : Result[StringView, ParseError] = try? parse_percent_encoding(
-    "ZZ end",
-  )
+  let bad3 : Result[StringView, ParseError] = Ok(
+    parse_percent_encoding("ZZ end"),
+  ) catch {
+    e => Err(e)
+  }
   assert_true(bad3 is Err(_))
 }
 
 ///|
 test "parse rejects URI with invalid percent encoding" {
-  let bad : Result[Uri, ParseError] = try? Uri("http://example.com/path%GG")
+  let bad : Result[Uri, ParseError] = Ok(Uri("http://example.com/path%GG")) catch {
+    e => Err(e)
+  }
   assert_true(bad is Err(_))
 }
 
 ///|
 test "parse accepts percent-encoded query" {
   // Regression test for percent-encoding bug in parse_query_then_fragment
-  let ok : Result[Uri, ParseError] = try? Uri("http://example.com/?q=a%20b")
+  let ok : Result[Uri, ParseError] = Ok(Uri("http://example.com/?q=a%20b")) catch {
+    e => Err(e)
+  }
   assert_true(ok is Ok(_))
 }
 
 ///|
 test "parse accepts percent-encoded fragment" {
   // Regression test for percent-encoding bug in parse_fragment
-  let ok : Result[Uri, ParseError] = try? Uri("http://example.com/#sec%20tion")
+  let ok : Result[Uri, ParseError] = Ok(Uri("http://example.com/#sec%20tion")) catch {
+    e => Err(e)
+  }
   assert_true(ok is Ok(_))
 }
 
 ///|
 test "parse accepts percent-encoded host" {
   // Regression test for percent-encoding bug in parse_reg_name
-  let ok : Result[Uri, ParseError] = try? Uri("http://ex%C3%A4mple.com/")
+  let ok : Result[Uri, ParseError] = Ok(Uri("http://ex%C3%A4mple.com/")) catch {
+    e => Err(e)
+  }
   assert_true(ok is Ok(_))
 }
 
 ///|
 test "parse accepts bare relative reference" {
   // Regression test: previously "foo" raised InvalidSchemeOrSegment at EOF
-  let ok1 : Result[Uri, ParseError] = try? Uri("foo")
+  let ok1 : Result[Uri, ParseError] = Ok(Uri("foo")) catch { e => Err(e) }
   assert_true(ok1 is Ok(_))
-  let ok2 : Result[Uri, ParseError] = try? Uri(".")
+  let ok2 : Result[Uri, ParseError] = Ok(Uri(".")) catch { e => Err(e) }
   assert_true(ok2 is Ok(_))
-  let ok3 : Result[Uri, ParseError] = try? Uri("..")
+  let ok3 : Result[Uri, ParseError] = Ok(Uri("..")) catch { e => Err(e) }
   assert_true(ok3 is Ok(_))
 }
 

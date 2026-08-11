@@ -89,6 +89,21 @@ function Find-ExprEnd([string]$s, [int]$start, [bool]$matchMode) {
   return $i
 }
 
+function Peek-NextSignificant([string]$s, [int]$i) {
+  # 返回下一个有意义的字符（跳过空白和 // 注释）
+  $len = $s.Length
+  while ($i -lt $len) {
+    $c = $s[$i]
+    if ($c -eq ' ' -or $c -eq "`t" -or $c -eq "`n" -or $c -eq "`r") { $i++; continue }
+    if ($c -eq '/' -and $i + 1 -lt $len -and $s[$i + 1] -eq '/') {
+      while ($i -lt $len -and $s[$i] -ne "`n") { $i++ }
+      continue
+    }
+    return $c
+  }
+  return ''
+}
+
 function Convert-TryQ([string]$content) {
   $changed = 0
   $positions = @()
@@ -110,27 +125,9 @@ function Convert-TryQ([string]$content) {
     $matchMode = ($prefix.TrimEnd() -match 'match$')
     $end = Find-ExprEnd $content $e $matchMode
     $expr = $content.Substring($e, $end - $e).TrimEnd()
-    # 上下文检测
-    $beforeTrim = $prefix.TrimEnd()
-    if ($beforeTrim -match 'ignore\($') {
-      $igStart = $lineStart + $prefix.Length - ($prefix.Length - $prefix.TrimEnd().Length) - 0
-      # 定位 ignore( 起点
-      $igStart = $content.LastIndexOf('ignore(', $pos)
-      $closeParen = $end
-      while ($closeParen -lt $content.Length -and ($content[$closeParen] -eq ' ' -or $content[$closeParen] -eq "`t" -or $content[$closeParen] -eq "`n")) { $closeParen++ }
-      if ($closeParen -lt $content.Length -and $content[$closeParen] -eq ')') {
-        $repl = 'try ' + $expr + ' catch { _ => () }'
-        $content = $content.Substring(0, $igStart) + $repl + $content.Substring($closeParen + 1)
-        $changed++
-        continue
-      }
-    }
-    if ($prefix.Trim() -eq '') {
-      # 语句级：吞掉错误
-      $repl = 'try ' + $expr + ' catch { _ => () }'
-    } else {
-      $repl = 'try Ok(' + $expr + ') catch { e => Err(e) }'
-    }
+    # Result 值可隐式丢弃，统一转换为 Result 形式，语义与 try? 完全一致；
+    # 若外层有 ignore(...) 包裹则自然保留
+    $repl = 'try Ok(' + $expr + ') catch { e => Err(e) }'
     $content = $content.Substring(0, $pos) + $repl + $content.Substring($end)
     $changed++
   }

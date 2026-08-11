@@ -1,8 +1,8 @@
 import {
-  "hnlyxiaobing/crescent/core" @core,
-  "hnlyxiaobing/crescent/httputil" @httputil,
-  "hnlyxiaobing/crescent/router" @router,
-  "hnlyxiaobing/crescent/cookie" @cookie,
+  "hnlyxiaobing/crescent/core",
+  "hnlyxiaobing/crescent/httputil",
+  "hnlyxiaobing/crescent/router",
+  "hnlyxiaobing/crescent/cookie",
   "hnlyxiaobing/crescent/websocket" @ws,
   "moonbitlang/async",
   "moonbitlang/async/http",
@@ -17,9 +17,9 @@ import {
 }
 
 import {
-  "hnlyxiaobing/crescent/fetch" @fetch,
-  "hnlyxiaobing/crescent/middleware" @middleware,
-  "hnlyxiaobing/crescent/test_client" @test_client,
+  "hnlyxiaobing/crescent/fetch",
+  "hnlyxiaobing/crescent/middleware",
+  "hnlyxiaobing/crescent/test_client",
   "moonbitlang/async/os_error",
   "moonbitlang/async/websocket",
 } for "test"

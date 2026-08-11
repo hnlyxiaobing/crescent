@@ -6,15 +6,6 @@ struct TestUser {
 } derive(FromJson, ToJson, Eq, Debug)
 
 ///|
-impl Show for TestUser with output(self, logger) {
-  logger.write_string("TestUser { name: ")
-  logger.write_object(self.name)
-  logger.write_string(", age: ")
-  logger.write_object(self.age)
-  logger.write_string(" }")
-}
-
-///|
 test "HttpRequest::json parses struct from body" {
   let req = @crescent.HttpRequest(
     Post,
@@ -30,7 +21,7 @@ test "HttpRequest::json parses struct from body" {
 ///|
 test "HttpRequest::json fails on invalid json" {
   let req = @crescent.HttpRequest(Post, "/users", {}, raw_body=b"not json")
-  let result : Result[TestUser, _] = try? req.json()
+  let result : Result[TestUser, _] = Ok(req.json()) catch { e => Err(e) }
   assert_true(result is Err(_))
 }
 
@@ -42,7 +33,7 @@ test "HttpRequest::json fails on missing fields" {
     {},
     raw_body=b"{\"name\":\"Alice\"}",
   )
-  let result : Result[TestUser, _] = try? req.json()
+  let result : Result[TestUser, _] = Ok(req.json()) catch { e => Err(e) }
   assert_true(result is Err(_))
 }
 
@@ -54,7 +45,7 @@ test "HttpRequest::json fails on wrong field type" {
     {},
     raw_body=b"{\"name\":\"Alice\",\"age\":\"thirty\"}",
   )
-  let result : Result[TestUser, _] = try? req.json()
+  let result : Result[TestUser, _] = Ok(req.json()) catch { e => Err(e) }
   assert_true(result is Err(_))
 }
 
@@ -74,7 +65,7 @@ test "HttpRequest::json parses nested struct" {
 ///|
 test "HttpRequest::json parses empty body as error" {
   let req = @crescent.HttpRequest(Post, "/", {}, raw_body=b"")
-  let result : Result[TestUser, _] = try? req.json()
+  let result : Result[TestUser, _] = Ok(req.json()) catch { e => Err(e) }
   assert_true(result is Err(_))
 }
 
@@ -83,7 +74,7 @@ test "HttpResponse::json_value sets content type and body" {
   let user : TestUser = { name: "Alice", age: 30 }
   let res = @crescent.HttpResponse::ok().json_value(user)
   inspect(res.status_code, content="OK")
-  inspect(
+  debug_inspect(
     res.headers.get("Content-Type"),
     content="Some(\"application/json; charset=utf-8\")",
   )

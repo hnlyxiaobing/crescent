@@ -137,7 +137,7 @@ test "allowed_methods includes HEAD for GET route" {
   let app = App()
   app.get("/test", _ => "ok")
   let methods = app.allowed_methods("/test", false)
-  inspect(methods, content="[\"GET\", \"HEAD\"]")
+  debug_inspect(methods, content="[\"GET\", \"HEAD\"]")
 }
 
 ///|
@@ -145,7 +145,7 @@ test "allowed_methods with implicit OPTIONS" {
   let app = App()
   app.get("/test", _ => "ok")
   let methods = app.allowed_methods("/test", true)
-  inspect(methods, content="[\"GET\", \"HEAD\", \"OPTIONS\"]")
+  debug_inspect(methods, content="[\"GET\", \"HEAD\", \"OPTIONS\"]")
 }
 
 ///|
@@ -155,7 +155,7 @@ test "allowed_methods multiple methods on same path" {
   app.post("/users", _ => "create")
   app.delete("/users", _ => "remove")
   let methods = app.allowed_methods("/users", false)
-  inspect(methods, content="[\"GET\", \"HEAD\", \"POST\", \"DELETE\"]")
+  debug_inspect(methods, content="[\"GET\", \"HEAD\", \"POST\", \"DELETE\"]")
 }
 
 ///|
@@ -164,7 +164,7 @@ test "allowed_methods with explicit OPTIONS handler" {
   app.get("/test", _ => "ok")
   app.options_raw("/test", _ => "opts")
   let methods = app.allowed_methods("/test", false)
-  inspect(methods, content="[\"GET\", \"HEAD\", \"OPTIONS\"]")
+  debug_inspect(methods, content="[\"GET\", \"HEAD\", \"OPTIONS\"]")
 }
 
 ///|
@@ -172,14 +172,14 @@ test "allowed_methods returns empty for unknown path" {
   let app = App()
   app.get("/test", _ => "ok")
   let methods = app.allowed_methods("/unknown", false)
-  inspect(methods, content="[]")
+  debug_inspect(methods, content="[]")
 }
 
 ///|
 test "allowed_methods no implicit OPTIONS when empty" {
   let app = App()
   let methods = app.allowed_methods("/nothing", true)
-  inspect(methods, content="[]")
+  debug_inspect(methods, content="[]")
 }
 
 ///|

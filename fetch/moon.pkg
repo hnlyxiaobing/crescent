@@ -1,7 +1,7 @@
 import {
-  "hnlyxiaobing/crescent/core" @core,
-  "hnlyxiaobing/crescent/uri" @uri,
-  "hnlyxiaobing/crescent/httputil" @httputil,
+  "hnlyxiaobing/crescent/core",
+  "hnlyxiaobing/crescent/uri",
+  "hnlyxiaobing/crescent/httputil",
   "moonbitlang/async/http",
   "moonbitlang/core/buffer",
   "moonbitlang/core/encoding/utf8",

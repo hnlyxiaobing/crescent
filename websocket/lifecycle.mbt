@@ -32,22 +32,35 @@ async fn recv_native_ws_message(
 ) -> @async_websocket.Message? {
   match read_timeout_ms {
     Some(read_timeout_ms) =>
-      match @async.with_timeout_opt(read_timeout_ms, () => try? ws.recv()) {
+      match
+        @async.with_timeout_opt(read_timeout_ms, () => {
+          Ok(ws.recv()) catch {
+            e => Err(e)
+          }
+        }) {
         Some(Ok(message)) => Some(message)
         Some(Err(@async_websocket.ConnectionClosed(_, _))) => None
         Some(Err(err)) => raise err
         None => {
           ignore(
-            try? ws.send_close(
-              code=GoingAway,
-              reason=NATIVE_WS_READ_TIMEOUT_REASON,
-            ),
+            Ok(
+              ws.send_close(
+                code=GoingAway,
+                reason=NATIVE_WS_READ_TIMEOUT_REASON,
+              ),
+            ) catch {
+              e => Err(e)
+            },
           )
           None
         }
       }
     None => {
-      let message_result : Result[@async_websocket.Message, Error] = try? ws.recv()
+      let message_result : Result[@async_websocket.Message, Error] = Ok(
+        ws.recv(),
+      ) catch {
+        e => Err(e)
+      }
       match message_result {
         Ok(message) => Some(message)
         Err(@async_websocket.ConnectionClosed(_, _)) => None
@@ -116,10 +129,14 @@ async fn read_native_ws_message_contents(
         }
         if native_ws_chunk_exceeds_limit(limit, total, chunk.length()) {
           ignore(
-            try? ws.send_close(
-              code=MessageTooBig,
-              reason=NATIVE_WS_MESSAGE_TOO_BIG_REASON,
-            ),
+            Ok(
+              ws.send_close(
+                code=MessageTooBig,
+                reason=NATIVE_WS_MESSAGE_TOO_BIG_REASON,
+              ),
+            ) catch {
+              e => Err(e)
+            },
           )
           return None
         }
@@ -133,9 +150,13 @@ async fn read_native_ws_message_contents(
 ///|
 async fn send_native_ws_shutdown_close(ws : @async_websocket.Conn) -> Unit {
   ignore(
-    try? @async.protect_from_cancel(resume_on_cancel=true, () => {
-      ws.send_close(code=GoingAway, reason=NATIVE_WS_SERVER_SHUTDOWN_REASON)
-    }),
+    Ok(
+      @async.protect_from_cancel(resume_on_cancel=true, () => {
+        ws.send_close(code=GoingAway, reason=NATIVE_WS_SERVER_SHUTDOWN_REASON)
+      }),
+    ) catch {
+      e => Err(e)
+    },
   )
 }
 
@@ -143,13 +164,13 @@ async fn send_native_ws_shutdown_close(ws : @async_websocket.Conn) -> Unit {
 fn normalize_native_websocket_request_headers(
   headers : Map[String, String],
 ) -> Map[String, String] {
-  let normalized : Map[String, String] = {}
+  let normalized : Map[String, String] = Map([])
   headers.each((key, value) => {
     let normalized_value = match key.to_lower() {
       "connection" =>
         value.split(",").map(token => token.trim()).to_array().join(", ")
       "upgrade" | "sec-websocket-version" | "sec-websocket-key" =>
-        value.trim().to_string()
+        value.trim().to_owned()
       _ => value
     }
     normalized.set(key, normalized_value)

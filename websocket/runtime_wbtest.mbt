@@ -17,10 +17,11 @@ async fn allocate_direct_lifecycle_server() -> @http.Server {
   let addr = @socket.Addr::parse("127.0.0.1:0") catch {
     _ => raise DirectLifecycleSocketBindUnavailable
   }
-  let bind_check : Result[@http.Server, Error] = try? @http.Server(
-    addr,
-    reuse_addr=true,
-  )
+  let bind_check : Result[@http.Server, Error] = Ok(
+    Server(addr, reuse_addr=true),
+  ) catch {
+    e => Err(e)
+  }
   match bind_check {
     Ok(server) => server
     Err(@os_error.OSError(errno, ..)) if errno == 1 =>
@@ -52,9 +53,11 @@ async test "outgoing queue is closed before Close handler fires" {
         match resolve_native_ws_connection(peer.connection_id) {
           Some((_, connection)) => {
             close_saw_registered.val = Some(true)
-            let result : Result[Bool, Error] = try? connection.outgoing.try_put(
-              SendBinary(b""),
-            )
+            let result : Result[Bool, Error] = Ok(
+              connection.outgoing.try_put(SendBinary(b"")),
+            ) catch {
+              e => Err(e)
+            }
             close_saw_queue_closed.val = Some(
               match result {
                 Err(_) => true
@@ -76,7 +79,11 @@ async test "outgoing queue is closed before Close handler fires" {
     let port = server.addr.port()
     group.spawn_bg(no_wait=true, allow_failure=true, () => {
       for ;; {
-        let conn_result : Result[(@http.ServerConnection, @socket.Addr), Error] = try? server.accept()
+        let conn_result : Result[(@http.ServerConnection, @socket.Addr), Error] = Ok(
+          server.accept(),
+        ) catch {
+          e => Err(e)
+        }
         match conn_result {
           Err(_) => break
           Ok((conn, _addr)) =>
@@ -114,8 +121,8 @@ async test "outgoing queue is closed before Close handler fires" {
         raise DirectLifecycleNotReady
       }
     })
-    inspect(close_saw_registered.val, content="Some(true)")
-    inspect(close_saw_queue_closed.val, content="Some(true)")
+    debug_inspect(close_saw_registered.val, content="Some(true)")
+    debug_inspect(close_saw_queue_closed.val, content="Some(true)")
     server.close()
   }) catch {
     DirectLifecycleSocketBindUnavailable => return
@@ -129,7 +136,7 @@ fn test_native_ws_connection(
   overflow_policy : NativeWebSocketOverflowPolicy,
 ) -> NativeWebSocketConnection {
   {
-    outgoing: @async.Queue(kind=Blocking(capacity)),
+    outgoing: Queue(kind=Blocking(capacity)),
     overflow_policy,
     subscribed_channels: Map([]),
   }

@@ -105,7 +105,9 @@ async test "fetch supports head and rejects unsupported protocols" {
     err => raise err
   }
 
-  let unsupported = try? @fetch.get("ftp://example.com/data")
+  let unsupported = Ok(@fetch.get("ftp://example.com/data")) catch {
+    e => Err(e)
+  }
   match unsupported {
     Err(@fetch.FetchError::RequestFailed(message)) =>
       inspect(message, content="unsupported protocol: ftp")

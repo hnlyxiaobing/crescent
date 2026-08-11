@@ -7,7 +7,7 @@ pub(all) enum SameSiteOption {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for SameSiteOption with output(self, logger) {
+pub impl Show for SameSiteOption with fn output(self, logger) {
   match self {
     Lax => logger.write_string("Lax")
     Strict => logger.write_string("Strict")
@@ -16,7 +16,7 @@ pub impl Show for SameSiteOption with output(self, logger) {
 }
 
 ///|
-pub impl ToJson for SameSiteOption with to_json(self : SameSiteOption) -> Json {
+pub impl ToJson for SameSiteOption with fn to_json(self : SameSiteOption) -> Json {
   match self {
     Lax => "lax"
     Strict => "strict"
@@ -76,7 +76,7 @@ fn sanitize_cookie_value(s : String) -> String {
 }
 
 ///|
-pub impl Show for CookieItem with output(self, logger) -> Unit {
+pub impl Show for CookieItem with fn output(self, logger) -> Unit {
   logger.write_string(sanitize_cookie_value(self.name))
   logger.write_char('=')
   logger.write_string(sanitize_cookie_value(self.value))
@@ -105,8 +105,8 @@ pub impl Show for CookieItem with output(self, logger) -> Unit {
 }
 
 ///|
-pub impl Show for CookieItem with to_string(self : CookieItem) -> String {
-  let buf = Buffer()
+pub impl Show for CookieItem with fn to_string(self : CookieItem) -> String {
+  let buf = StringBuilder()
   self.output(buf)
   buf.to_string()
 }
@@ -131,8 +131,8 @@ pub fn parse_cookie(cookie : StringView) -> Map[String, CookieItem] {
   let res = Map([])
   let mut last_cookie_item : (String, CookieItem)? = None
   fn on_key_value(key : StringView, value : StringView) -> Unit {
-    let key = key.to_string()
-    let value = dequote(value).to_string()
+    let key = key.to_owned()
+    let value = dequote(value).to_owned()
     if last_cookie_item is Some((name, item)) {
       let new_item = match key.to_lower() {
         "path" => { ..item, path: Some(value) }
@@ -176,7 +176,7 @@ pub fn parse_cookie(cookie : StringView) -> Map[String, CookieItem] {
       continue
     }
     let (key, value) = match frag_trimmed.find("=") {
-      Some(idx) => (frag_trimmed[0:idx], frag_trimmed[idx + 1:])
+      Some(idx) => (frag_trimmed[0:idx].trim(), frag_trimmed[idx + 1:].trim())
       None => (frag_trimmed, "")
     }
     on_key_value(key, value)

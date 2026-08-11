@@ -1,11 +1,11 @@
 import {
   "hnlyxiaobing/crescent",
-  "hnlyxiaobing/crescent/httputil" @httputil,
+  "hnlyxiaobing/crescent/httputil",
   "moonbitlang/async",
 }
 
 import {
-  "hnlyxiaobing/crescent/test_client" @test_client,
+  "hnlyxiaobing/crescent/test_client",
 } for "test"
 
 warnings = "+missing_doc+unnecessary_annotation+74"

@@ -65,27 +65,27 @@ test "parse_multipart" {
   let bytes = @utf8.encode(body)
   let parts = parse_multipart(bytes[:], boundary)
   let field1 = first_multipart_value(parts, "field1")
-  inspect(
+  debug_inspect(
     field1.map(v => @utf8.decode(v.data) catch { _ => "" }),
     content=(
       #|Some("value1")
     ),
   )
-  inspect(field1.bind(v => v.filename), content="None")
+  debug_inspect(field1.bind(v => v.filename), content="None")
   let field2 = first_multipart_value(parts, "field2")
-  inspect(
+  debug_inspect(
     field2.map(v => @utf8.decode(v.data) catch { _ => "" }),
     content=(
       #|Some("value2")
     ),
   )
-  inspect(
+  debug_inspect(
     field2.bind(v => v.filename),
     content=(
       #|Some("example.txt")
     ),
   )
-  inspect(
+  debug_inspect(
     field2.bind(v => v.content_type),
     content=(
       #|Some("text/plain")

@@ -179,16 +179,18 @@ fn enqueue_native_ws_outgoing_to_connection(
   connection : NativeWebSocketConnection,
   message : NativeWebSocketOutbound,
 ) -> Unit {
-  let enqueue_result : Result[Bool, Error] = try? connection.outgoing.try_put(
-    message,
-  )
+  let enqueue_result : Result[Bool, Error] = Ok(
+    connection.outgoing.try_put(message),
+  ) catch {
+    e => Err(e)
+  }
   match enqueue_result {
     Ok(true) => ()
     Ok(false) =>
       match connection.overflow_policy {
         DropOldest => {
-          ignore(try? connection.outgoing.try_get())
-          ignore(try? connection.outgoing.try_put(message))
+          ignore(Ok(connection.outgoing.try_get()) catch { e => Err(e) })
+          ignore(Ok(connection.outgoing.try_put(message)) catch { e => Err(e) })
         }
         DropLatest => ()
       }

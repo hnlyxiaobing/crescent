@@ -8,7 +8,7 @@ fn normalize_mount_path(path : String) -> String {
   if path == "" {
     "/"
   } else if path.length() > 1 && path[path.length() - 1:] == "/" {
-    path[:path.length() - 1].to_string()
+    path[:path.length() - 1].to_owned()
   } else {
     path
   }
@@ -28,12 +28,12 @@ fn mounted_asset_id(mount_path : String, request_path : String) -> String {
     if request_path == "/" {
       ""
     } else {
-      request_path[1:].to_string()
+      request_path[1:].to_owned()
     }
   } else if request_path.length() == mount_path.length() {
     ""
   } else {
-    request_path[mount_path.length() + 1:].to_string()
+    request_path[mount_path.length() + 1:].to_owned()
   }
 }
 
@@ -56,7 +56,7 @@ struct StaticResolvedResponder {
 }
 
 ///|
-pub impl Responder for StaticResolvedResponder with options(self, res) -> Unit {
+pub impl Responder for StaticResolvedResponder with fn options(self, res) -> Unit {
   self.inner.options(res)
   if res.status_code == OK {
     self.asset_headers.each((key, value) => {
@@ -68,12 +68,12 @@ pub impl Responder for StaticResolvedResponder with options(self, res) -> Unit {
 }
 
 ///|
-pub impl Responder for StaticResolvedResponder with output(self, buf) -> Unit {
+pub impl Responder for StaticResolvedResponder with fn output(self, buf) -> Unit {
   self.inner.output(buf)
 }
 
 ///|
-pub impl Responder for StaticResolvedResponder with output_bytes(self) -> Bytes? {
+pub impl Responder for StaticResolvedResponder with fn output_bytes(self) -> Bytes? {
   self.inner.output_bytes()
 }
 

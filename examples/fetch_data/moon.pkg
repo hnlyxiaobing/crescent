@@ -3,6 +3,4 @@ import {
   "hnlyxiaobing/crescent/fetch",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

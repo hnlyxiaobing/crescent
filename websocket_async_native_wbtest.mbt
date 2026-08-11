@@ -9,10 +9,9 @@ async fn allocate_websocket_lifecycle_server() -> @http.Server {
   let addr = @socket.Addr::parse("127.0.0.1:0") catch {
     _ => raise WebSocketLifecycleSocketBindUnavailable
   }
-  let bind_check : Result[@http.Server, Error] = try Ok(@http.Server(
-    addr,
-    reuse_addr=true,
-  )) catch {
+  let bind_check : Result[@http.Server, Error] = Ok(
+    Server(addr, reuse_addr=true),
+  ) catch {
     e => Err(e)
   }
   match bind_check {
@@ -118,7 +117,9 @@ async test "serve_on clears websocket runtime state on cancellation" {
 
     task.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
 
@@ -154,7 +155,9 @@ async test "serve_on_until clears websocket runtime state on shutdown signal" {
     let port = server.addr.port()
     let shutdown = @async.Queue(kind=Blocking(0))
     let task = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server, shutdown~)
+      Ok(app.serve_on(server, shutdown~)) catch {
+        e => Err(e)
+      }
     })
     wait_until_websocket_lifecycle_ready(port)
 
@@ -241,7 +244,9 @@ async test "serve_on removes websocket channel subscriptions on close" {
 
     task.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
 
@@ -308,7 +313,7 @@ async test "serve_on makes closed websocket peers inert after unregister" {
     })
 
     client2.send_text("poke-stale")
-    inspect(
+    debug_inspect(
       @async.with_timeout_opt(100, () => client2.recv().read_all().text()),
       content="None",
     )
@@ -318,7 +323,9 @@ async test "serve_on makes closed websocket peers inert after unregister" {
 
     task.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
 
@@ -385,7 +392,7 @@ async test "serve_on cleans up channel membership after client close" {
       }
     })
 
-    inspect(close_channel_members.val, content="Some(2)")
+    debug_inspect(close_channel_members.val, content="Some(2)")
 
     @async.retry(FixedDelay(20), max_retry=50, () => {
       match close_connection_id.val {
@@ -404,7 +411,9 @@ async test "serve_on cleans up channel membership after client close" {
 
     task.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
 
@@ -469,8 +478,8 @@ async test "serve_on cleans up subscriptions added during close handler" {
       }
     })
 
-    inspect(close_primary_members.val, content="Some(1)")
-    inspect(close_late_members.val, content="Some(1)")
+    debug_inspect(close_primary_members.val, content="Some(1)")
+    debug_inspect(close_late_members.val, content="Some(1)")
 
     @async.retry(FixedDelay(20), max_retry=50, () => {
       match close_connection_id.val {
@@ -487,7 +496,9 @@ async test "serve_on cleans up subscriptions added during close handler" {
 
     task.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
   }) catch {
@@ -547,8 +558,8 @@ async test "serve_on handles unsubscribe then subscribe mutations during close h
       }
     })
 
-    inspect(close_primary_members.val, content="Some(0)")
-    inspect(close_late_members.val, content="Some(1)")
+    debug_inspect(close_primary_members.val, content="Some(0)")
+    debug_inspect(close_late_members.val, content="Some(1)")
 
     @async.retry(FixedDelay(20), max_retry=50, () => {
       match close_connection_id.val {
@@ -565,7 +576,9 @@ async test "serve_on handles unsubscribe then subscribe mutations during close h
 
     task.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
   }) catch {
@@ -656,9 +669,9 @@ async test "serve_on keeps close-handler mutations isolated across reused app ru
       }
     })
 
-    inspect(close_room_members.val, content="Some(2)")
-    inspect(close_late_members.val, content="Some(1)")
-    inspect(close_late_runtime_count.val, content="Some(1)")
+    debug_inspect(close_room_members.val, content="Some(2)")
+    debug_inspect(close_late_members.val, content="Some(1)")
+    debug_inspect(close_late_runtime_count.val, content="Some(1)")
 
     @async.retry(FixedDelay(20), max_retry=50, () => {
       let runtime_ids = native_ws_runtime_ids_for_app(app)
@@ -682,11 +695,15 @@ async test "serve_on keeps close-handler mutations isolated across reused app ru
     task1.cancel()
     task2.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task1.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task1.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task2.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task2.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
 
@@ -744,7 +761,9 @@ async test "serve_on cancellation stays isolated across reused app runtimes" {
 
     task1.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task1.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task1.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
 
@@ -767,7 +786,9 @@ async test "serve_on cancellation stays isolated across reused app runtimes" {
 
     task2.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task2.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task2.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
 
@@ -802,10 +823,14 @@ async test "serve_on_until shutdown stays isolated across reused app runtimes" {
     let shutdown1 = @async.Queue(kind=Unbounded)
     let shutdown2 = @async.Queue(kind=Unbounded)
     let task1 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server1, shutdown=shutdown1)
+      Ok(app.serve_on(server1, shutdown=shutdown1)) catch {
+        e => Err(e)
+      }
     })
     let task2 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server2, shutdown=shutdown2)
+      Ok(app.serve_on(server2, shutdown=shutdown2)) catch {
+        e => Err(e)
+      }
     })
     wait_until_websocket_lifecycle_ready(port1)
     wait_until_websocket_lifecycle_ready(port2)
@@ -908,10 +933,14 @@ async test "serve_on_until queue close clears reused app websocket runtimes" {
     let port2 = server2.addr.port()
     let shutdown = @async.Queue(kind=Blocking(0))
     let task1 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server1, shutdown~)
+      Ok(app.serve_on(server1, shutdown~)) catch {
+        e => Err(e)
+      }
     })
     let task2 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server2, shutdown~)
+      Ok(app.serve_on(server2, shutdown~)) catch {
+        e => Err(e)
+      }
     })
     wait_until_websocket_lifecycle_ready(port1)
     wait_until_websocket_lifecycle_ready(port2)
@@ -996,10 +1025,14 @@ async test "serve_on_until queue close clears remaining reused runtime after can
     let port2 = server2.addr.port()
     let shutdown = @async.Queue(kind=Unbounded)
     let task1 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server1, shutdown~)
+      Ok(app.serve_on(server1, shutdown~)) catch {
+        e => Err(e)
+      }
     })
     let task2 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server2, shutdown~)
+      Ok(app.serve_on(server2, shutdown~)) catch {
+        e => Err(e)
+      }
     })
     wait_until_websocket_lifecycle_ready(port1)
     wait_until_websocket_lifecycle_ready(port2)
@@ -1025,7 +1058,9 @@ async test "serve_on_until queue close clears remaining reused runtime after can
 
     task1.cancel()
     assert_eq(
-      @async.with_timeout_opt(200, () => ignore(try? task1.wait())),
+      @async.with_timeout_opt(200, () => {
+        ignore(Ok(task1.wait()) catch { e => Err(e) })
+      }),
       Some(()),
     )
 
@@ -1093,10 +1128,14 @@ async test "serve_on_until shutdown signal wakes one reused runtime" {
     let port2 = server2.addr.port()
     let shutdown = @async.Queue(kind=Blocking(0))
     let task1 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server1, shutdown~)
+      Ok(app.serve_on(server1, shutdown~)) catch {
+        e => Err(e)
+      }
     })
     let task2 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server2, shutdown~)
+      Ok(app.serve_on(server2, shutdown~)) catch {
+        e => Err(e)
+      }
     })
     wait_until_websocket_lifecycle_ready(port1)
     wait_until_websocket_lifecycle_ready(port2)
@@ -1122,10 +1161,14 @@ async test "serve_on_until shutdown signal wakes one reused runtime" {
 
     shutdown.put(())
     let client1_after = @async.with_timeout_opt(300, () => {
-      try? client1.recv().read_all().text()
+      Ok(client1.recv().read_all().text()) catch {
+        e => Err(e)
+      }
     })
     let client2_after = @async.with_timeout_opt(300, () => {
-      try? client2.recv().read_all().text()
+      Ok(client2.recv().read_all().text()) catch {
+        e => Err(e)
+      }
     })
 
     match client1_after {
@@ -1135,7 +1178,7 @@ async test "serve_on_until shutdown signal wakes one reused runtime" {
           None => ()
           Some(Err(@websocket.ConnectionClosed(code, why))) =>
             fail(
-              "expected only one reused runtime to stop after shutdown signal, but both websocket clients closed: \{code} / \{why}",
+              "expected only one reused runtime to stop after shutdown signal, but both websocket clients closed: \{Repr(code)} / \{Repr(why)}",
             )
           Some(Err(err)) =>
             fail(
@@ -1171,7 +1214,7 @@ async test "serve_on_until shutdown signal wakes one reused runtime" {
         match @async.with_timeout_opt(100, () => task2.wait()) {
           Some(result) =>
             fail(
-              "expected sibling reused runtime to stay alive after one shutdown signal, got \{result}",
+              "expected sibling reused runtime to stay alive after one shutdown signal, got \{Repr(result)}",
             )
           None => ()
         }
@@ -1212,7 +1255,7 @@ async test "serve_on_until shutdown signal wakes one reused runtime" {
       }
       Some(Err(@websocket.ConnectionClosed(code, reason))) =>
         fail(
-          "expected stopped reused websocket client to observe going-away close after shutdown signal, got \{code} / \{reason}",
+          "expected stopped reused websocket client to observe going-away close after shutdown signal, got \{Repr(code)} / \{Repr(reason)}",
         )
       Some(Err(err)) =>
         fail(
@@ -1254,7 +1297,7 @@ async test "serve_on_until shutdown signal wakes one reused runtime" {
             match @async.with_timeout_opt(100, () => task1.wait()) {
               Some(result) =>
                 fail(
-                  "expected sibling reused runtime to stay alive after one shutdown signal, got \{result}",
+                  "expected sibling reused runtime to stay alive after one shutdown signal, got \{Repr(result)}",
                 )
               None => ()
             }
@@ -1295,7 +1338,7 @@ async test "serve_on_until shutdown signal wakes one reused runtime" {
           }
           Some(Err(@websocket.ConnectionClosed(code, reason))) =>
             fail(
-              "expected exactly one reused websocket runtime to stop after shutdown signal, but got unexpected second close: \{code} / \{reason}",
+              "expected exactly one reused websocket runtime to stop after shutdown signal, but got unexpected second close: \{Repr(code)} / \{Repr(reason)}",
             )
           Some(Err(err)) =>
             fail(
@@ -1336,10 +1379,14 @@ async test "serve_on_until queue close clears surviving reused runtime after shu
     let port2 = server2.addr.port()
     let shutdown = @async.Queue(kind=Blocking(0))
     let task1 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server1, shutdown~)
+      Ok(app.serve_on(server1, shutdown~)) catch {
+        e => Err(e)
+      }
     })
     let task2 = group.spawn(no_wait=true, () => {
-      try? app.serve_on(server2, shutdown~)
+      Ok(app.serve_on(server2, shutdown~)) catch {
+        e => Err(e)
+      }
     })
     wait_until_websocket_lifecycle_ready(port1)
     wait_until_websocket_lifecycle_ready(port2)
@@ -1365,10 +1412,14 @@ async test "serve_on_until queue close clears surviving reused runtime after shu
 
     shutdown.put(())
     let client1_after = @async.with_timeout_opt(300, () => {
-      try? client1.recv().read_all().text()
+      Ok(client1.recv().read_all().text()) catch {
+        e => Err(e)
+      }
     })
     let client2_after = @async.with_timeout_opt(300, () => {
-      try? client2.recv().read_all().text()
+      Ok(client2.recv().read_all().text()) catch {
+        e => Err(e)
+      }
     })
 
     match client1_after {
@@ -1378,7 +1429,7 @@ async test "serve_on_until queue close clears surviving reused runtime after shu
           None => ()
           Some(Err(@websocket.ConnectionClosed(code, why))) =>
             fail(
-              "expected only one reused runtime to stop after shutdown signal, but both websocket clients closed: \{code} / \{why}",
+              "expected only one reused runtime to stop after shutdown signal, but both websocket clients closed: \{Repr(code)} / \{Repr(why)}",
             )
           Some(Err(err)) =>
             fail(
@@ -1414,7 +1465,7 @@ async test "serve_on_until queue close clears surviving reused runtime after shu
         match @async.with_timeout_opt(100, () => task2.wait()) {
           Some(result) =>
             fail(
-              "expected sibling reused runtime to stay alive after one shutdown signal, got \{result}",
+              "expected sibling reused runtime to stay alive after one shutdown signal, got \{Repr(result)}",
             )
           None => ()
         }
@@ -1443,7 +1494,7 @@ async test "serve_on_until queue close clears surviving reused runtime after shu
       }
       Some(Err(@websocket.ConnectionClosed(code, reason))) =>
         fail(
-          "expected stopped reused websocket client to observe going-away close after shutdown signal, got \{code} / \{reason}",
+          "expected stopped reused websocket client to observe going-away close after shutdown signal, got \{Repr(code)} / \{Repr(reason)}",
         )
       Some(Err(err)) =>
         fail(
@@ -1485,7 +1536,7 @@ async test "serve_on_until queue close clears surviving reused runtime after shu
             match @async.with_timeout_opt(100, () => task1.wait()) {
               Some(result) =>
                 fail(
-                  "expected sibling reused runtime to stay alive after one shutdown signal, got \{result}",
+                  "expected sibling reused runtime to stay alive after one shutdown signal, got \{Repr(result)}",
                 )
               None => ()
             }
@@ -1514,7 +1565,7 @@ async test "serve_on_until queue close clears surviving reused runtime after shu
           }
           Some(Err(@websocket.ConnectionClosed(code, reason))) =>
             fail(
-              "expected exactly one reused websocket runtime to stop after shutdown signal, but got unexpected second close: \{code} / \{reason}",
+              "expected exactly one reused websocket runtime to stop after shutdown signal, but got unexpected second close: \{Repr(code)} / \{Repr(reason)}",
             )
           Some(Err(err)) =>
             fail(

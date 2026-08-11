@@ -35,16 +35,16 @@ fn append_cookie_headers(
 
 ///|
 test "append_cookie_headers with empty cookies does nothing" {
-  let headers : Map[String, String] = {}
-  let cookies : Map[String, @cookie.CookieItem] = {}
+  let headers : Map[String, String] = Map([])
+  let cookies : Map[String, @cookie.CookieItem] = Map([])
   append_cookie_headers(headers, cookies)
   inspect(headers.contains("Set-Cookie"), content="false")
 }
 
 ///|
 test "append_cookie_headers with single cookie sets header" {
-  let headers : Map[String, String] = {}
-  let cookies : Map[String, @cookie.CookieItem] = {}
+  let headers : Map[String, String] = Map([])
+  let cookies : Map[String, @cookie.CookieItem] = Map([])
   cookies.set("session", {
     name: "session",
     value: "abc123",
@@ -56,7 +56,7 @@ test "append_cookie_headers with single cookie sets header" {
     same_site: None,
   })
   append_cookie_headers(headers, cookies)
-  inspect(
+  debug_inspect(
     headers.get("Set-Cookie"),
     content=(
       #|Some("session=abc123")
@@ -66,8 +66,8 @@ test "append_cookie_headers with single cookie sets header" {
 
 ///|
 test "append_cookie_headers with multiple cookies joins with CRLF Set-Cookie" {
-  let headers : Map[String, String] = {}
-  let cookies : Map[String, @cookie.CookieItem] = {}
+  let headers : Map[String, String] = Map([])
+  let cookies : Map[String, @cookie.CookieItem] = Map([])
   cookies.set("a", {
     name: "a",
     value: "1",
@@ -89,7 +89,7 @@ test "append_cookie_headers with multiple cookies joins with CRLF Set-Cookie" {
     same_site: None,
   })
   append_cookie_headers(headers, cookies)
-  inspect(
+  debug_inspect(
     headers.get("Set-Cookie"),
     content=(
       #|Some("a=1\r\nSet-Cookie: b=2")

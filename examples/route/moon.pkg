@@ -2,9 +2,7 @@ import {
   "moonbitlang/async",
   "hnlyxiaobing/crescent",
   "hnlyxiaobing/crescent/cors",
-  "hnlyxiaobing/crescent/middleware" @middleware,
+  "hnlyxiaobing/crescent/middleware",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")
