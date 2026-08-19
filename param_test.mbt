@@ -5,7 +5,7 @@ test "param returns string value" {
     res: HttpResponse(status_code=OK),
     params: { "id": "42" },
   }
-  debug_inspect(event.param("id"), content="Some(\"42\")")
+  debug_inspect(event.param("id"), content="Some(<StringView: \"42\">)")
   debug_inspect(event.param("missing"), content="None")
 }
 

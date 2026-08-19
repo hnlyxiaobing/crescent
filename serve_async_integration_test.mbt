@@ -2,6 +2,15 @@
 struct TestStaticProvider {}
 
 ///|
+fn headers_to_string_map(
+  headers : Map[@http.CaseInsensitiveString, String],
+) -> Map[String, String] {
+  let out : Map[String, String] = Map([])
+  headers.each(fn(key, value) { out.set(key.to_string().to_lower(), value) })
+  out
+}
+
+///|
 struct EncodedStaticProvider {}
 
 ///|
@@ -260,7 +269,7 @@ async fn issue_request(
   meth : @http.RequestMethod,
   path : String,
   body? : Bytes,
-  headers? : Map[String, String],
+  headers? : Map[@http.CaseInsensitiveString, String],
 ) -> (@http.Response, Bytes) {
   let client = @http.Client("http://127.0.0.1:\{port}")
   defer client.close()
@@ -2661,7 +2670,7 @@ async test "serve preserves content-encoding for encoded static assets" {
       headers={ "Accept-Encoding": "gzip" },
     )
     assert_eq(head_response.code, 200)
-    guard head_response.headers
+    guard headers_to_string_map(head_response.headers)
       is { "content-encoding": "gzip", "content-length": "7", .. } else {
       fail(
         "expected HEAD response to preserve content-encoding and content-length",

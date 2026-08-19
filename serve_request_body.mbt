@@ -1,7 +1,10 @@
 ///|
 fn request_content_length(request : @http.Request) -> Int? {
   match
-    @httputil.get_header_case_insensitive(request.headers, "content-length") {
+    @httputil.get_header_case_insensitive(
+      copy_async_headers(request.headers),
+      "content-length",
+    ) {
     Some(value) => Some(@string.parse_int(value) catch { _ => return None })
     None => None
   }

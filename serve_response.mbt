@@ -182,7 +182,7 @@ async fn send_response_async(
   conn.send_response(
     response.status_code.to_int(),
     response.status_code.to_string(),
-    extra_headers=headers,
+    extra_headers=string_headers_to_async_headers(headers),
   )
   if !response.raw_body.is_empty() {
     conn.write(response.raw_body)
@@ -212,7 +212,7 @@ async fn send_response_and_close_async(
   conn.send_response(
     response.status_code.to_int(),
     response.status_code.to_string(),
-    extra_headers=headers,
+    extra_headers=string_headers_to_async_headers(headers),
   )
   if !response.raw_body.is_empty() {
     conn.write(response.raw_body)

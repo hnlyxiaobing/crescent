@@ -3,8 +3,8 @@ name = "hnlyxiaobing/crescent"
 version = "0.10.2"
 
 import {
-  "moonbitlang/x@0.4.49",
-  "moonbitlang/async@0.20.4",
+  "moonbitlang/x@0.5.1",
+  "moonbitlang/async@0.21.0",
 }
 
 readme = "README.md"

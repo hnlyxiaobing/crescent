@@ -256,6 +256,25 @@ fn prepare_fetch_payload_bytes(
 }
 
 ///|
+/// Convert a plain `Map[String, String]` header map to async's
+/// case-insensitive key map (async 0.21.0 `Headers` type).
+fn to_ci_headers(headers : Map[String, String]) -> Map[@http.CaseInsensitiveString, String] {
+  let out : Map[@http.CaseInsensitiveString, String] = Map([])
+  headers.each((k, v) => out.set(k, v))
+  out
+}
+
+///|
+/// Convert async's case-insensitive header map back to plain string keys.
+fn from_ci_headers(
+  headers : Map[@http.CaseInsensitiveString, String],
+) -> Map[String, String] {
+  let out : Map[String, String] = Map([])
+  headers.each((k, v) => out.set(k.to_string().to_lower(), v))
+  out
+}
+
+///|
 /// Sends an HTTP request to the given URL and returns the response.
 pub async fn fetch(
   url : String,
@@ -278,7 +297,7 @@ pub async fn fetch(
     client.request(
       request_method_to_async(http_method),
       path,
-      extra_headers=req_headers,
+      extra_headers=to_ci_headers(req_headers),
     )
     match req_body {
       Some(body_bytes) => client.write(body_bytes)
@@ -293,7 +312,7 @@ pub async fn fetch(
     }
   HttpResponse(
     status_code=@core.StatusCode::from_int(response.code),
-    headers=@httputil.copy_headers(response.headers),
+    headers=@httputil.copy_headers(from_ci_headers(response.headers)),
     raw_body=response_body,
   )
 }
