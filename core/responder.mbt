@@ -30,6 +30,9 @@ pub impl Responder for &ToJson with fn output_bytes(_self) -> Bytes? {
 }
 
 ///|
+pub extend HttpRequest with Responder::{options, output, output_bytes}
+
+///|
 pub impl Responder for HttpRequest with fn options(self, res) -> Unit {
   @httputil.merge_headers_case_insensitive(res.headers, self.headers)
 }
@@ -47,6 +50,9 @@ pub impl Responder for HttpRequest with fn output_bytes(self) -> Bytes? {
     Some(self.raw_body)
   }
 }
+
+///|
+pub extend HttpResponse with Responder::{options, output, output_bytes}
 
 ///|
 pub impl Responder for HttpResponse with fn options(self, res) -> Unit {
@@ -150,6 +156,9 @@ pub impl Responder for StringView with fn output_bytes(_self) -> Bytes? {
 
 ///|
 struct Html(String)
+
+///|
+pub extend Html with Responder::{options, output, output_bytes}
 
 ///|
 pub impl Responder for Html with fn options(_, res) -> Unit {

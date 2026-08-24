@@ -16,6 +16,9 @@ pub(all) struct HttpRequest {
 } derive(Debug(ignore=Bytes))
 
 ///|
+pub extend HttpRequest with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Creates a new `HttpRequest` with the given method, URL, headers, and optional body.
 pub fn HttpRequest::HttpRequest(
   http_method : HttpMethod,
@@ -279,6 +282,18 @@ struct TryJsonTestUser {
 } derive(FromJson, ToJson, Eq, Debug)
 
 ///|
+pub extend TryJsonTestUser with @json.FromJson::{from_json}
+
+///|
+pub extend TryJsonTestUser with ToJson::{to_json}
+
+///|
+pub extend TryJsonTestUser with Eq::{not_equal, equal}
+
+///|
+pub extend TryJsonTestUser with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 test "try_json returns Ok on valid json" {
   let req = HttpRequest(
     Post,
@@ -287,7 +302,7 @@ test "try_json returns Ok on valid json" {
     raw_body=@utf8.encode("{\"name\":\"Alice\",\"age\":30}"),
   )
   let result : Result[TryJsonTestUser, String] = req.try_json()
-  let expected = TryJsonTestUser::{ name: "Alice", age: 30 }
+  let expected = TryJsonTestUser::{ name: "Alice", age: 30, }
   assert_eq(result, Ok(expected))
 }
 

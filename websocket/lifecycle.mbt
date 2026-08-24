@@ -151,7 +151,7 @@ async fn read_native_ws_message_contents(
 async fn send_native_ws_shutdown_close(ws : @async_websocket.Conn) -> Unit {
   ignore(
     Ok(
-      @async.protect_from_cancel(resume_on_cancel=true, () => {
+      @async.protect_from_cancel(() => {
         ws.send_close(code=GoingAway, reason=NATIVE_WS_SERVER_SHUTDOWN_REASON)
       }),
     ) catch {
@@ -241,6 +241,11 @@ fn normalize_native_websocket_request(request : @http.Request) -> @http.Request 
 ///   channel memberships, and any subscriptions the user added during
 ///   `Close`. Running `unregister` only on the happy path would leak those
 ///   on any exception inside the Close handler.
+///
+///   The task-group `catch` inspects the error value (only cancellation
+///   gets a close frame), which `errdefer` cannot do, so the
+///   fragile_catch_all warning is suppressed for this function.
+#warnings("-fragile_catch_all")
 pub async fn handle_route_async(
   runtime_id : String,
   request : @http.Request,
@@ -300,7 +305,8 @@ pub async fn handle_route_async(
   // Task group scope: the writer task is a child, the peer loop is the
   // group's main body. When the main body exits, the group waits for the
   // writer (which outgoing.close() nudges to completion). If either task
-  // raises, the group cancels the sibling and re-raises to our `catch`.
+  // raises, the group cancels the sibling and re-raises to our `catch`
+  // (fragile_catch_all is suppressed at the function level above).
   @async.with_task_group(group => {
     group.spawn_bg(() => write_native_ws_outgoing(ws, outgoing))
     // Open fires exactly once, before the first Message.
@@ -334,7 +340,7 @@ pub async fn handle_route_async(
       if @async.is_cancellation_error(err) {
         send_native_ws_shutdown_close(ws)
       }
-      // Close still fires on the error path — paired with the Open above.
+      // Close still fires on the error path - paired with the Open above.
       handler(Close(snapshot_native_ws_peer(connection_id, params)))
       raise err
     }

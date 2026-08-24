@@ -108,6 +108,16 @@ async fn StaticFileProvider::safe_resolve(
 }
 
 ///|
+pub extend StaticFileProvider with @crescent.ServeStaticProvider::{
+  get_fallthrough,
+  get_contents,
+  get_type,
+  get_encodings,
+  get_meta,
+  get_index_names,
+}
+
+///|
 /// Returns metadata (ETag, modification time, path, size) for the asset
 /// identified by `id`, or `None` if the file does not exist, is not a regular
 /// file, or resolves outside the provider root (symlink escape).

@@ -121,9 +121,7 @@ test "header_contains_token_case_insensitive returns false for missing header" {
 fn @http.Request::is_websocket_upgrade_request(request : Self) -> Bool {
   let headers = copy_async_headers(request.headers)
   let has_connection_upgrade = header_contains_token_case_insensitive(
-    headers,
-    "connection",
-    "upgrade",
+    headers, "connection", "upgrade",
   )
   let has_websocket_upgrade = match
     @httputil.get_header_case_insensitive(headers, "upgrade") {
@@ -165,7 +163,7 @@ test "is_websocket_upgrade_request returns false without Upgrade header" {
 
 ///|
 test "is_websocket_upgrade_request returns false with empty headers" {
-  let request : @http.Request = { meth: Get, path: "/", headers: {} }
+  let request : @http.Request = { meth: Get, path: "/", headers: {}, }
   inspect(request.is_websocket_upgrade_request(), content="false")
 }
 

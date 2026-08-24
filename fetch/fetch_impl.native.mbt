@@ -98,7 +98,7 @@ fn resolve_fetch_url(
   }
 
   // Reconstruct the request path from segments and query.
-  let path_buf = StringBuilder::new()
+  let path_buf = StringBuilder()
   for seg in parsed.path {
     path_buf.write_string("/")
     path_buf.write_view(seg)
@@ -258,7 +258,9 @@ fn prepare_fetch_payload_bytes(
 ///|
 /// Convert a plain `Map[String, String]` header map to async's
 /// case-insensitive key map (async 0.21.0 `Headers` type).
-fn to_ci_headers(headers : Map[String, String]) -> Map[@http.CaseInsensitiveString, String] {
+fn to_ci_headers(
+  headers : Map[String, String],
+) -> Map[@http.CaseInsensitiveString, String] {
   let out : Map[@http.CaseInsensitiveString, String] = Map([])
   headers.each((k, v) => out.set(k, v))
   out

@@ -1,4 +1,9 @@
+import {
+  "moonbitlang/core/debug",
+}
+
 // -1 suppresses unused_value: parse_absolute_uri and remove_dot_segments
 // are RFC 3986 helpers exercised by uri_wbtest.mbt for spec-compliance
 // coverage, but not used by the public Uri::Uri parser path.
+
 warnings = "+74-1"
