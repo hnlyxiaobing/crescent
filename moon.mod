@@ -1,6 +1,6 @@
 name = "hnlyxiaobing/crescent"
 
-version = "0.10.4"
+version = "0.10.5"
 
 import {
   "moonbitlang/x@0.5.1",

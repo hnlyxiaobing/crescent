@@ -224,10 +224,11 @@ fn normalize_native_websocket_request(request : @http.Request) -> @http.Request 
 ///
 /// Key invariants:
 ///
-/// - **`Close` fires exactly once whenever `Open` did.** Normal exit reaches
-///   the final `handler(Close(...))` at the bottom; error/cancellation goes
-///   through the `catch` block, which calls `Close` and re-raises. If the
-///   handshake fails (`InvalidHandshake`), neither Open nor Close fires.
+/// - **`Close` fires exactly once whenever `Open` did.** A single
+///   `defer handler(Close(...))` before the task group covers both the
+///   normal-exit and the error/cancellation paths (no `catch` is needed:
+///   the task group's error propagates naturally). If the handshake fails
+///   (`InvalidHandshake`), neither Open nor Close fires.
 ///
 /// - **Cancellation sends a polite `GoingAway` close frame before the
 ///   socket dies.** `send_native_ws_shutdown_close` uses
@@ -243,9 +244,15 @@ fn normalize_native_websocket_request(request : @http.Request) -> @http.Request 
 ///   on any exception inside the Close handler.
 ///
 ///   The task-group `catch` inspects the error value (only cancellation
-///   gets a close frame), which `errdefer` cannot do, so the
-///   fragile_catch_all warning is suppressed for this function.
-#warnings("-fragile_catch_all")
+///   gets a close frame).
+///
+///   NOTE: we deliberately avoid `#warnings("-fragile_catch_all")` here.
+///   That mnemonic only exists in toolchains released on/after 2026-08-24
+///   (0.1.20260824); on older toolchains the directive is a hard compile
+///   error ([3021] unknown warning mnemonic), which broke the Docker build
+///   for downstream projects. Instead of suppressing the warning, the
+///   `Close` cleanup is delivered by a `defer` (see body), so no
+///   `fragile_catch_all` warning is produced on any toolchain.
 pub async fn handle_route_async(
   runtime_id : String,
   request : @http.Request,
@@ -302,11 +309,27 @@ pub async fn handle_route_async(
   // -------------------------------------------------------------------------
   // Phase 3 + 4: Writer task + peer loop
   // -------------------------------------------------------------------------
+  // Close fires exactly once on every exit path where Open fired (normal
+  // return, task-group error, or cancellation). A single `defer` replaces
+  // both the catch-path and the normal-exit `handler(Close)` calls, and
+  // avoids the `fragile_catch_all` warning that catch-based cleanup would
+  // trigger (see the NOTE in the doc comment above).
+  defer handler(Close(snapshot_native_ws_peer(connection_id, params)))
+  // Cancellation path (server shutdown): send a 1001 GoingAway close frame
+  // so clients see an orderly shutdown instead of a TCP reset. The close
+  // helper itself is cancel-protected. We detect cancellation via the
+  // coroutine's `is_being_cancelled()` flag instead of catching the task
+  // group's error: any `catch { err => ...; raise err }` would re-trigger
+  // the `fragile_catch_all` warning (which we cannot suppress portably — see
+  // the NOTE in the doc comment above), and `is_being_cancelled()` is also
+  // more accurate than inspecting the propagated error (per @async docs).
+  // The task group's error therefore propagates naturally.
+  defer (if @async.is_being_cancelled() { send_native_ws_shutdown_close(ws) })
   // Task group scope: the writer task is a child, the peer loop is the
   // group's main body. When the main body exits, the group waits for the
   // writer (which outgoing.close() nudges to completion). If either task
-  // raises, the group cancels the sibling and re-raises to our `catch`
-  // (fragile_catch_all is suppressed at the function level above).
+  // raises, the group cancels the sibling, the error propagates, and the
+  // defers above run the GoingAway / Close cleanup.
   @async.with_task_group(group => {
     group.spawn_bg(() => write_native_ws_outgoing(ws, outgoing))
     // Open fires exactly once, before the first Message.
@@ -332,20 +355,5 @@ pub async fn handle_route_async(
     // Tell the writer task there will be no more messages. It drains
     // anything already enqueued, then exits, letting the group close.
     outgoing.close()
-  }) catch {
-    err => {
-      // Cancellation path (server shutdown): send a 1001 GoingAway close
-      // frame so clients see an orderly shutdown instead of a TCP reset.
-      // The close helper itself is cancel-protected.
-      if @async.is_cancellation_error(err) {
-        send_native_ws_shutdown_close(ws)
-      }
-      // Close still fires on the error path - paired with the Open above.
-      handler(Close(snapshot_native_ws_peer(connection_id, params)))
-      raise err
-    }
-  }
-  // Normal-exit Close. Paired with the catch-path Close above, this ensures
-  // Close fires exactly once per Open regardless of how the session ended.
-  handler(Close(snapshot_native_ws_peer(connection_id, params)))
+  })
 }
