@@ -2543,7 +2543,7 @@ async test "serve_until binds by port and stops on shutdown signal" {
 ///|
 async test "serve mounts static assets by prefix" {
   let app = @crescent.App()
-  app.static_assets("/assets", TestStaticProvider::{ })
+  app.static_assets("/assets", TestStaticProvider::{  })
   with_test_server(app, port => {
     let (response1, body1) = @http.get(localhost_url(port, "/assets/hello.txt"))
     assert_eq(response1.code, 200)
@@ -2585,7 +2585,7 @@ async test "serve mounts static assets by prefix" {
 ///|
 async test "serve serves static assets from the root mount" {
   let app = @crescent.App()
-  app.static_assets("", TestStaticProvider::{ })
+  app.static_assets("", TestStaticProvider::{  })
   @async.with_task_group(group => {
     let server = allocate_test_server()
     let port = server.addr.port()
@@ -2619,7 +2619,7 @@ async test "serve serves static assets from the root mount" {
 ///|
 async test "serve normalizes trailing-slash static mounts" {
   let app = @crescent.App()
-  app.static_assets("/assets/", TestStaticProvider::{ })
+  app.static_assets("/assets/", TestStaticProvider::{  })
   with_test_server(app, port => {
     let (index_response, index_body) = @http.get(localhost_url(port, "/assets"))
     assert_eq(index_response.code, 200)
@@ -2651,7 +2651,7 @@ async test "serve normalizes trailing-slash static mounts" {
 ///|
 async test "serve preserves content-encoding for encoded static assets" {
   let app = @crescent.App()
-  app.static_assets("/assets", EncodedStaticProvider::{ })
+  app.static_assets("/assets", EncodedStaticProvider::{  })
   with_test_server(app, port => {
     let (get_response, get_body) = issue_request(
       port,
@@ -2686,7 +2686,7 @@ async test "serve preserves content-encoding for encoded static assets" {
 ///|
 async test "serve preserves vary and last-modified on conditional static responses" {
   let app = @crescent.App()
-  app.static_assets("/assets", EncodedStaticProvider::{ })
+  app.static_assets("/assets", EncodedStaticProvider::{  })
   with_test_server(app, port => {
     let (get_response, get_body) = issue_request(
       port,
@@ -3851,7 +3851,7 @@ async test "serve rejects malformed websocket-like requests on websocket routes 
 async test "serve honors mixed-case static and websocket upgrade headers" {
   let log : Array[String] = []
   let app = @crescent.App()
-  app.static_assets("/assets", EncodedStaticProvider::{ })
+  app.static_assets("/assets", EncodedStaticProvider::{  })
   app.ws("/ws", event => {
     match event {
       Open(_) => log.push("open")

@@ -173,9 +173,14 @@ async test "get_meta returns size, path, and etag for a real file" {
   }
   assert_eq(meta.size, Some(16L))
   assert_true(meta.etag is Some(_))
-  // path is canonicalized (absolute), so check the suffix
+  // path is canonicalized (absolute), so check the suffix.
+  // Normalize separators so the check also works on Windows.
   guard meta.path is Some(p) else { fail("expected meta.path") }
-  assert_true(p.has_suffix("static_file/testdata/hello.txt"))
+  assert_true(
+    p
+    .replace_all(old="\\", new="/")
+    .has_suffix("static_file/testdata/hello.txt"),
+  )
 }
 ```
 

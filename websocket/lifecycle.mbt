@@ -286,8 +286,31 @@ pub async fn handle_route_async(
   } noraise {
     ws => ws
   }
+  // Set when the peer loop aborts on a protocol error mid-frame: the close
+  // path must then drain leftover client input before closing the socket
+  // (see drain_connection_input for the platform rationale).
+  let needs_input_drain : Ref[Bool] = Ref(false)
   // Socket closed on every exit path from here on.
-  defer ws.close()
+  // The websocket library buffers the close frame it writes on protocol
+  // errors without flushing it down to the socket. On Windows, closing a
+  // socket that still has buffered pending data emits a TCP RST (the peer
+  // then sees WSAECONNRESET) instead of delivering the buffered bytes like
+  // Linux does. Flush the connection buffer before tearing the socket down
+  // so close-frame delivery stays platform-independent.
+  defer {
+    conn.flush() catch {
+      _ => ()
+    }
+    // After a mid-frame protocol error the client may still be streaming
+    // the remainder of the offending frame: drain it (until the peer closes
+    // its side) before closing, otherwise the close triggers a TCP RST
+    // that - on Windows - also destroys the close frame the peer should
+    // have received.
+    if needs_input_drain.val {
+      drain_connection_input(conn)
+    }
+    ws.close()
+  }
 
   // -------------------------------------------------------------------------
   // Phase 2: Hub registration
@@ -337,7 +360,19 @@ pub async fn handle_route_async(
     for ;; {
       // recv_native_ws_message returns None on graceful close or read
       // timeout (it sends the appropriate close frame internally).
-      let message = match recv_native_ws_message(ws, read_timeout_ms) {
+      let message = match
+        (recv_native_ws_message(ws, read_timeout_ms) catch {
+          _ => {
+            // A protocol error aborted the stream mid-frame (e.g. an
+            // oversized control frame is rejected from its header alone),
+            // and recv already emitted our close frame. The client may
+            // still be streaming the remainder of the offending frame:
+            // mark the connection so the close path drains the leftover
+            // input before closing the socket, then stop the peer loop.
+            needs_input_drain.val = true
+            None
+          }
+        }) {
         Some(message) => message
         None => break
       }
@@ -356,4 +391,32 @@ pub async fn handle_route_async(
     // anything already enqueued, then exits, letting the group close.
     outgoing.close()
   })
+}
+
+///|
+/// Drains any unread client input from `conn` before the socket is closed.
+///
+/// When the websocket library aborts a connection mid-frame (protocol
+/// errors such as an oversized control frame are detected from the frame
+/// header alone), the client may still be streaming the remainder of that
+/// frame. Closing the socket while unread bytes sit in the receive buffer
+/// makes the OS emit a TCP RST; on Windows the RST additionally destroys
+/// data the peer already received (including the close frame we just
+/// wrote), which surfaces as WSAECONNRESET instead of the expected close
+/// frame. Draining until EOF (the peer closes its side after receiving our
+/// close frame) lets the socket be closed cleanly so close-frame delivery
+/// stays platform-independent.
+async fn drain_connection_input(conn : @http.ServerConnection) -> Unit {
+  let buf : FixedArray[Byte] = FixedArray::make(4096, b'\x00')
+  try {
+    for ;; {
+      let n = conn.read(buf)
+      if n == 0 {
+        break // EOF: peer closed its side, nothing left to drain.
+      }
+    }
+  } catch {
+    // The connection already failed (reset / read error): nothing to drain.
+    _ => ()
+  }
 }

@@ -130,10 +130,13 @@ async test "static_file provider exposes file metadata" {
   match provider.get_meta("hello.txt") {
     Some(meta) => {
       assert_eq(meta.size, Some(16L))
-      // Path is now canonicalized (absolute), so check suffix
+      // Path is now canonicalized (absolute), so check suffix.
+      // Normalize separators so the check also works on Windows.
       match meta.path {
-        Some(path) =>
-          assert_true(path.has_suffix("static_file/testdata/hello.txt"))
+        Some(path) => {
+          let norm = path.replace_all(old="\\", new="/")
+          assert_true(norm.has_suffix("static_file/testdata/hello.txt"))
+        }
         None => fail("expected meta.path to be set")
       }
       guard meta.etag is Some(_) else {

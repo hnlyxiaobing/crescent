@@ -1,3 +1,8 @@
 # Generated files should not be included in language statistics
 mongoose.c linguist-generated=true
 mongoose.h linguist-generated=true
+
+# Test fixture files must keep their exact bytes on every platform so that
+# size/etag assertions in tests are stable (git autocrlf would otherwise
+# rewrite LF to CRLF on Windows and change the file size).
+static_file/testdata/* -text

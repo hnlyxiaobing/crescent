@@ -51,7 +51,7 @@ pub fn CompiledRoute::CompiledRoute(template : String) -> CompiledRoute {
       segments.push(Static(part.to_owned()))
     }
   }
-  { template, segments, is_static, }
+  { template, segments, is_static }
 }
 
 ///|

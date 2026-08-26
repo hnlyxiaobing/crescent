@@ -58,13 +58,18 @@ async fn resolve_within_root(
   let root_real = Ok(@fs.realpath(root)) catch { e => Err(e) }
   let candidate_real = Ok(@fs.realpath(candidate)) catch { e => Err(e) }
   match (root_real, candidate_real) {
-    (Ok(root_path), Ok(cand_path)) =>
+    (Ok(root_path), Ok(cand_path)) => {
+      // Normalize path separators so the containment check also works on
+      // Windows, where `realpath` returns backslash-separated paths.
+      let root_norm = root_path.replace_all(old="\\", new="/")
+      let cand_norm = cand_path.replace_all(old="\\", new="/")
       // Candidate must be equal to root, or under root with a separator.
-      if cand_path == root_path || cand_path.has_prefix(root_path + "/") {
+      if cand_norm == root_norm || cand_norm.has_prefix(root_norm + "/") {
         Some(cand_path)
       } else {
         None
       }
+    }
     _ => None
   }
 }

@@ -78,30 +78,34 @@ async test "outgoing queue is closed before Close handler fires" {
     let server = allocate_direct_lifecycle_server()
     let port = server.addr.port()
     group.spawn_bg(no_wait=true, allow_failure=true, () => {
-      for ;; {
-        let conn_result : Result[(@http.ServerConnection, @socket.Addr), Error] = Ok(
-          server.accept(),
-        ) catch {
-          e => Err(e)
-        }
-        match conn_result {
-          Err(_) => break
-          Ok((conn, _addr)) =>
-            group.spawn_bg(allow_failure=true, () => {
-              let req = conn.read_request()
-              handle_route_async(
-                runtime_id,
-                req,
-                conn,
-                handler,
-                {},
-                None,
-                256,
-                DropOldest,
-                None,
-              )
-            })
-        }
+      // NOTE: this loop intentionally accepts exactly one connection and
+      // then exits, because this test drives a single client. It must not
+      // keep waiting on `server.accept()` after handing the connection off:
+      // on Windows, closing the listener socket later does not wake up a
+      // pending `accept()` coroutine, so an endless accept loop would stay
+      // suspended forever in this no_wait task and hang the test process.
+      let conn_result : Result[(@http.ServerConnection, @socket.Addr), Error] = Ok(
+        server.accept(),
+      ) catch {
+        e => Err(e)
+      }
+      match conn_result {
+        Err(_) => ()
+        Ok((conn, _addr)) =>
+          group.spawn_bg(allow_failure=true, () => {
+            let req = conn.read_request()
+            handle_route_async(
+              runtime_id,
+              req,
+              conn,
+              handler,
+              {},
+              None,
+              256,
+              DropOldest,
+              None,
+            )
+          })
       }
     })
     let client = @async_websocket.connect("ws://127.0.0.1:\{port}/")

@@ -75,7 +75,7 @@ pub fn CookieItem::CookieItem(
   http_only? : Bool,
   same_site? : SameSiteOption,
 ) -> CookieItem {
-  { name, value, max_age, path, domain, secure, http_only, same_site, }
+  { name, value, max_age, path, domain, secure, http_only, same_site }
 }
 
 ///|
@@ -156,8 +156,8 @@ pub fn parse_cookie(cookie : StringView) -> Map[String, CookieItem] {
     let value = dequote(value).to_owned()
     if last_cookie_item is Some((name, item)) {
       let new_item = match key.to_lower() {
-        "path" => { ..item, path: Some(value), }
-        "domain" => { ..item, domain: Some(value), }
+        "path" => { ..item, path: Some(value) }
+        "domain" => { ..item, domain: Some(value) }
         "max-age" =>
           {
             ..item,
@@ -167,8 +167,8 @@ pub fn parse_cookie(cookie : StringView) -> Map[String, CookieItem] {
               x => Some(x)
             },
           }
-        "secure" => { ..item, secure: Some(true), }
-        "httponly" => { ..item, http_only: Some(true), }
+        "secure" => { ..item, secure: Some(true) }
+        "httponly" => { ..item, http_only: Some(true) }
         "samesite" => {
           let same_site = match value.to_lower() {
             "lax" => Some(Lax)
