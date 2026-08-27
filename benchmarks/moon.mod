@@ -5,7 +5,7 @@ version = "0.0.1"
 import {
   "hnlyxiaobing/crescent@0.10.1",
   "moonbitlang/x@0.5.1",
-  "moonbitlang/async@0.21.0",
+  "moonbitlang/async@0.21.1",
 }
 
 readme = "../README.md"
