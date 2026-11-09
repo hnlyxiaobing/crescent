@@ -140,10 +140,11 @@ test "read body as JSON" {
 ```mbt check
 ///|
 #warnings("-unnecessary_annotation")
+#derive(FromJson, Eq, Debug)
 struct CoreDocUser {
   name : String
-  age : Int
-} derive(FromJson, Eq, Debug)
+  age : Int32
+}
 
 ///|
 test "json shorthand parses typed value" {

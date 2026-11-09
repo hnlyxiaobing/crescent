@@ -12,7 +12,8 @@ import {
 // Types and methods
 type Csv
 
-type UserInput derive(ToJson, @json.FromJson)
+#derive(@json.FromJson, @json.ToJson)
+type UserInput
 
 // Type aliases
 

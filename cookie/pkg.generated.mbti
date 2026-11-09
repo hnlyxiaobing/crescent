@@ -3,6 +3,7 @@ package "hnlyxiaobing/crescent/cookie"
 
 import {
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -13,17 +14,18 @@ pub fn parse_cookie(StringView) -> Map[String, CookieItem]
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct CookieItem {
   name : String
   value : String
-  max_age : Int?
+  max_age : Int32?
   path : String?
   domain : String?
   secure : Bool?
   http_only : Bool?
   same_site : SameSiteOption?
-} derive(Eq, @debug.Debug)
-pub fn CookieItem::CookieItem(name~ : String, value~ : String, max_age? : Int, path? : String, domain? : String, secure? : Bool, http_only? : Bool, same_site? : SameSiteOption) -> Self
+}
+pub fn CookieItem::CookieItem(name~ : String, value~ : String, max_age? : Int32, path? : String, domain? : String, secure? : Bool, http_only? : Bool, same_site? : SameSiteOption) -> Self
 pub fn CookieItem::equal(Self, Self) -> Bool
 pub fn CookieItem::not_equal(Self, Self) -> Bool
 pub fn CookieItem::output(Self, &Logger) -> Unit
@@ -31,19 +33,20 @@ pub fn CookieItem::to_repr(Self) -> @debug.Repr
 pub fn CookieItem::to_string(Self) -> String
 pub impl Show for CookieItem
 
+#derive(Eq, @debug.Debug)
 pub(all) enum SameSiteOption {
   Lax
   Strict
   SameSiteNone
-} derive(Eq, @debug.Debug)
+}
 pub fn SameSiteOption::equal(Self, Self) -> Bool
 pub fn SameSiteOption::not_equal(Self, Self) -> Bool
 pub fn SameSiteOption::output(Self, &Logger) -> Unit
-pub fn SameSiteOption::to_json(Self) -> Json
+pub fn SameSiteOption::to_json(Self) -> @json.Json
 pub fn SameSiteOption::to_repr(Self) -> @debug.Repr
 pub fn SameSiteOption::to_string(Self) -> String
 pub impl Show for SameSiteOption
-pub impl ToJson for SameSiteOption
+pub impl @json.ToJson for SameSiteOption
 
 // Type aliases
 

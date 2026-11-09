@@ -17,7 +17,7 @@ pub fn WebSocketPeer::WebSocketPeer(
   connection_id~ : String,
   params? : Map[String, String],
 ) -> WebSocketPeer {
-  { connection_id, subscribed_channels: [], params: params.unwrap_or({}) }
+  { connection_id, subscribed_channels: [], params: params.unwrap_or({}), }
 }
 
 ///|
@@ -115,10 +115,11 @@ pub(all) struct WebSocketHandler((WebSocketEvent) -> Unit)
 
 ///|
 /// Policy for handling a full outbound WebSocket message queue.
+#derive(Debug, Eq)
 pub(all) enum NativeWebSocketOverflowPolicy {
   DropOldest
   DropLatest
-} derive(Debug, Eq)
+}
 
 ///|
 pub extend NativeWebSocketOverflowPolicy with @moonbitlang/core/debug.Debug::{

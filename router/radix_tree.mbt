@@ -42,7 +42,7 @@ fn[T] RadixNode::insert(
 fn[T] insert_segments(
   node : RadixNode[T],
   segments : Array[RouteSegment],
-  idx : Int,
+  idx : Int32,
   handler : T,
 ) -> Unit {
   if idx >= segments.length() {
@@ -123,7 +123,7 @@ fn[T] RadixNode::search(
 fn[T] search_segments(
   node : RadixNode[T],
   parts : Array[StringView],
-  idx : Int,
+  idx : Int32,
   params : Map[String, StringView],
 ) -> (T, Map[String, StringView])? {
   // All parts consumed: check for handler at this node
@@ -216,7 +216,7 @@ pub struct RadixRouter[T] {
 ///|
 /// Creates a new empty radix router with no registered routes.
 pub fn[T] RadixRouter::RadixRouter() -> RadixRouter[T] {
-  { trees: {}, fallback_routes: {} }
+  { trees: {}, fallback_routes: {}, }
 }
 
 ///|

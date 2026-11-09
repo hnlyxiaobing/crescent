@@ -136,7 +136,7 @@ async test "outgoing queue is closed before Close handler fires" {
 
 ///|
 fn test_native_ws_connection(
-  capacity : Int,
+  capacity : Int32,
   overflow_policy : NativeWebSocketOverflowPolicy,
 ) -> NativeWebSocketConnection {
   {

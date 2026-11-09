@@ -1,5 +1,6 @@
 ///|
 /// An incoming HTTP request containing the method, URL, headers, and body.
+#derive(Debug(ignore=Bytes))
 pub(all) struct HttpRequest {
   /// The HTTP method (Get, Post, Put, etc.).
   http_method : HttpMethod
@@ -13,7 +14,7 @@ pub(all) struct HttpRequest {
   priv mut cached_path : String?
   /// Lazily cached parsed query params, populated on first call to `get_query()` or `query_params()`.
   priv mut cached_query_params : Map[String, String]?
-} derive(Debug(ignore=Bytes))
+}
 
 ///|
 pub extend HttpRequest with @moonbitlang/core/debug.Debug::{to_repr}
@@ -276,10 +277,11 @@ test "read_body" {
 
 ///|
 #warnings("-unnecessary_annotation")
+#derive(FromJson, ToJson, Eq, Debug)
 struct TryJsonTestUser {
   name : String
-  age : Int
-} derive(FromJson, ToJson, Eq, Debug)
+  age : Int32
+}
 
 ///|
 pub extend TryJsonTestUser with @json.FromJson::{from_json}
@@ -302,7 +304,7 @@ test "try_json returns Ok on valid json" {
     raw_body=@utf8.encode("{\"name\":\"Alice\",\"age\":30}"),
   )
   let result : Result[TryJsonTestUser, String] = req.try_json()
-  let expected = TryJsonTestUser::{ name: "Alice", age: 30 }
+  let expected = TryJsonTestUser::{ name: "Alice", age: 30, }
   assert_eq(result, Ok(expected))
 }
 

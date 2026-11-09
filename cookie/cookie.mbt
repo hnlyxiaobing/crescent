@@ -1,10 +1,11 @@
 ///|
 /// The SameSite attribute for cookies, controlling cross-site request behavior.
+#derive(Debug, Eq)
 pub(all) enum SameSiteOption {
   Lax
   Strict
   SameSiteNone
-} derive(Debug, Eq)
+}
 
 ///|
 pub extend SameSiteOption with @moonbitlang/core/debug.Debug::{to_repr}
@@ -38,13 +39,14 @@ pub impl ToJson for SameSiteOption with fn to_json(self : SameSiteOption) -> Jso
 
 ///|
 /// Represents an HTTP cookie with its name, value, and optional attributes.
+#derive(Eq, Debug)
 pub(all) struct CookieItem {
   /// Cookie name (the key in `name=value`).
   name : String
   /// Cookie value.
   value : String
   /// Expiry in seconds from now; `0` deletes the cookie.
-  max_age : Int?
+  max_age : Int32?
   /// URL path scope for which the browser sends this cookie.
   path : String?
   /// Domain scope for which the browser sends this cookie.
@@ -55,7 +57,7 @@ pub(all) struct CookieItem {
   http_only : Bool?
   /// Cross-site request policy (`Lax`, `Strict`, or `SameSiteNone`).
   same_site : SameSiteOption?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend CookieItem with Eq::{not_equal, equal}
@@ -68,14 +70,14 @@ pub extend CookieItem with @moonbitlang/core/debug.Debug::{to_repr}
 pub fn CookieItem::CookieItem(
   name~ : String,
   value~ : String,
-  max_age? : Int,
+  max_age? : Int32,
   path? : String,
   domain? : String,
   secure? : Bool,
   http_only? : Bool,
   same_site? : SameSiteOption,
 ) -> CookieItem {
-  { name, value, max_age, path, domain, secure, http_only, same_site }
+  { name, value, max_age, path, domain, secure, http_only, same_site, }
 }
 
 ///|
@@ -156,8 +158,8 @@ pub fn parse_cookie(cookie : StringView) -> Map[String, CookieItem] {
     let value = dequote(value).to_owned()
     if last_cookie_item is Some((name, item)) {
       let new_item = match key.to_lower() {
-        "path" => { ..item, path: Some(value) }
-        "domain" => { ..item, domain: Some(value) }
+        "path" => { ..item, path: Some(value), }
+        "domain" => { ..item, domain: Some(value), }
         "max-age" =>
           {
             ..item,
@@ -167,8 +169,8 @@ pub fn parse_cookie(cookie : StringView) -> Map[String, CookieItem] {
               x => Some(x)
             },
           }
-        "secure" => { ..item, secure: Some(true) }
-        "httponly" => { ..item, http_only: Some(true) }
+        "secure" => { ..item, secure: Some(true), }
+        "httponly" => { ..item, http_only: Some(true), }
         "samesite" => {
           let same_site = match value.to_lower() {
             "lax" => Some(Lax)

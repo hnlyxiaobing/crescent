@@ -1,8 +1,9 @@
 ///|
+#derive(ToJson, FromJson)
 struct BenchUser {
-  id : Int
+  id : Int32
   name : String
-} derive(ToJson, FromJson)
+}
 
 ///|
 async fn main {
@@ -16,7 +17,7 @@ async fn main {
 
   // JSON using typed json_value
   app.get("/json-typed", _ => {
-    let user : BenchUser = { id: 1, name: "Alice" }
+    let user : BenchUser = { id: 1, name: "Alice", }
     @crescent.HttpResponse::ok().json_value(user)
   })
 

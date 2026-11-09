@@ -10,7 +10,8 @@ import {
 // Errors
 
 // Types and methods
-type BenchUser derive(ToJson, @json.FromJson)
+#derive(@json.FromJson, @json.ToJson)
+type BenchUser
 
 // Type aliases
 

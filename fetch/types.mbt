@@ -4,11 +4,12 @@
 /// NOTE: On the native target, this option is currently accepted but not
 /// enforced — cookies/TLS certs must be managed manually via headers.
 /// Kept for future compatibility and for the JS target.
+#derive(Eq, Debug)
 pub(all) enum FetchCredentials {
   Omit
   SameOrigin
   Include
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FetchCredentials with Eq::{not_equal, equal}
@@ -32,12 +33,13 @@ pub fn FetchCredentials::to_string(self : FetchCredentials) -> String {
 /// NOTE: On the native target, this option is currently accepted but not
 /// enforced — there is no browser sandbox. Kept for compatibility with the
 /// JS target and for future CORS-aware client implementations.
+#derive(Eq, Debug)
 pub(all) enum FetchMode {
   Cors
   NoCors
   SameOrigin
   Navigate
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FetchMode with Eq::{not_equal, equal}
@@ -58,9 +60,10 @@ pub fn FetchMode::to_string(self : FetchMode) -> String {
 
 ///|
 /// Error type for fetch operations, wrapping a failure message.
+#derive(Debug)
 pub suberror FetchError {
   RequestFailed(String)
-} derive(Debug)
+}
 
 ///|
 pub extend FetchError with @moonbitlang/core/debug.Debug::{to_repr}

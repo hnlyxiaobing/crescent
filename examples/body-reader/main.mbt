@@ -11,10 +11,11 @@ impl @crescent.BodyReader for Csv with fn from_request(req) -> Csv {
 }
 
 ///|
+#derive(FromJson, ToJson)
 struct UserInput {
   name : String
   email : String
-} derive(FromJson, ToJson)
+}
 
 ///|
 async fn main {

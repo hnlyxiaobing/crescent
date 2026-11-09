@@ -120,12 +120,12 @@ fn parse_scheme(source : StringView, uri : Uri) -> StringView raise ParseError {
 fn parse_percent_encoding(source : StringView) -> StringView raise ParseError {
   match source {
     [
-      '0'..='9'
-      | 'A'..='F'
-      | 'a'..='f',
-      '0'..='9'
-      | 'A'..='F'
-      | 'a'..='f',
+      '0'..<='9'
+      | 'A'..<='F'
+      | 'a'..<='f',
+      '0'..<='9'
+      | 'A'..<='F'
+      | 'a'..<='f',
       .. source,
     ] => source
     [..] => raise InvalidPercentEncoding(source)
@@ -228,7 +228,7 @@ fn parse_authority(
   source : StringView,
   uri : Uri,
 ) -> StringView raise ParseError {
-  let authority = Authority::{ userinfo: None, host: RegName(""), port: None }
+  let authority = Authority::{ userinfo: None, host: RegName(""), port: None, }
   uri.authority = Some(authority)
 
   // Try to parse userinfo first
@@ -431,7 +431,7 @@ fn parse_query_no_fragment_then_done(
 
 ///|
 fn remove_dot_segments(path : Array[StringView]) -> Array[StringView] {
-  let output = Array::new()
+  let output = Array(capacity=path.length())
   for segment in path {
     if segment == "." {
       continue // Remove single dot segments

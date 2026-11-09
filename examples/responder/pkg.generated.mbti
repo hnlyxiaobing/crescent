@@ -10,7 +10,8 @@ import {
 // Errors
 
 // Types and methods
-type Person derive(ToJson, @json.FromJson)
+#derive(@json.FromJson, @json.ToJson)
+type Person
 
 // Type aliases
 

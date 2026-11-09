@@ -1,10 +1,11 @@
 ///|
 /// Represents the host component of a URI, which is either an IPv6 address
 /// enclosed in brackets or a registered name (including IPv4 addresses).
+#derive(Eq, Debug)
 pub enum Host {
   IPv6Address(StringView)
   RegName(StringView)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Host with Eq::{not_equal, equal}
@@ -15,14 +16,15 @@ pub extend Host with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// The authority component of a URI, comprising an optional userinfo, a host,
 /// and an optional port number (e.g. `user:pass@example.com:8080`).
+#derive(Eq, Debug)
 pub struct Authority {
   /// Userinfo component before `@` (e.g., `user:pass`), if present.
   mut userinfo : StringView?
   /// Host component: either a domain name (`RegName`) or IPv6 address.
   mut host : Host
   /// Port number, if explicitly specified in the URI.
-  mut port : Int?
-} derive(Eq, Debug)
+  mut port : Int32?
+}
 
 ///|
 pub extend Authority with Eq::{not_equal, equal}
@@ -33,6 +35,7 @@ pub extend Authority with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// A parsed URI following RFC 3986, containing an optional scheme, authority,
 /// path segments, query, and fragment.
+#derive(Eq, Debug)
 pub struct Uri {
   /// URI scheme (e.g., `http`, `https`, `ftp`), if present.
   mut scheme : StringView?
@@ -44,7 +47,7 @@ pub struct Uri {
   mut query : StringView?
   /// Fragment after `#`, if present (without the `#`).
   mut fragment : StringView?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Uri with Eq::{not_equal, equal}

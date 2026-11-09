@@ -10,11 +10,12 @@ import {
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub struct CompiledRoute {
   segments : Array[RouteSegment]
   is_static : Bool
   // private fields
-} derive(@debug.Debug)
+}
 pub fn CompiledRoute::CompiledRoute(String) -> Self
 pub fn CompiledRoute::match_path(Self, String) -> Map[String, StringView]?
 pub fn CompiledRoute::to_repr(Self) -> @debug.Repr
@@ -28,12 +29,13 @@ pub fn[T] RadixRouter::is_empty(Self[T]) -> Bool
 pub fn[T] RadixRouter::merge(Self[T], Self[T]) -> Unit
 pub fn[T] RadixRouter::search(Self[T], String, String) -> (T, Map[String, StringView])?
 
+#derive(Eq, @debug.Debug)
 pub enum RouteSegment {
   Static(String)
   Param(String)
   Wildcard
   GlobStar
-} derive(Eq, @debug.Debug)
+}
 pub fn RouteSegment::equal(Self, Self) -> Bool
 pub fn RouteSegment::not_equal(Self, Self) -> Bool
 pub fn RouteSegment::to_repr(Self) -> @debug.Repr

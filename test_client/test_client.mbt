@@ -7,6 +7,7 @@ pub struct TestClient {
 
 ///|
 /// The response from a `TestClient` request, containing status, headers, and body.
+#derive(Debug(ignore=Bytes))
 pub struct TestResponse {
   /// The HTTP status code returned by the handler.
   status : @crescent.StatusCode
@@ -14,7 +15,7 @@ pub struct TestResponse {
   headers : Map[String, String]
   /// The raw response body bytes.
   body_bytes : Bytes
-} derive(Debug(ignore=Bytes))
+}
 
 ///|
 pub extend TestResponse with @moonbitlang/core/debug.Debug::{to_repr}
@@ -113,5 +114,5 @@ pub async fn TestClient::request(
   let (status, resp_headers, body_bytes) = self.app.dispatch(
     meth, path, headers, body,
   )
-  { status, headers: resp_headers, body_bytes }
+  { status, headers: resp_headers, body_bytes, }
 }

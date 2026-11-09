@@ -17,31 +17,36 @@ pub fn html(&Show) -> &@core.Responder
 pub fn text(&Show) -> &@core.Responder
 
 // Errors
-pub suberror ExecError derive(@debug.Debug)
+#derive(@debug.Debug)
+pub suberror ExecError
 pub fn ExecError::to_repr(Self) -> @debug.Repr
 
+#derive(@debug.Debug)
 pub(all) suberror HttpError {
   HttpError(@core.StatusCode, String)
-} derive(@debug.Debug)
+}
 pub fn HttpError::to_repr(Self) -> @debug.Repr
 
-pub suberror IOError derive(@debug.Debug)
+#derive(@debug.Debug)
+pub suberror IOError
 pub fn IOError::to_repr(Self) -> @debug.Repr
 
+#derive(@debug.Debug, @json.ToJson)
 pub suberror NativeServeError {
-  InvalidMaxConnections(Int)
-  InvalidMaxRequestBodyBytes(Int)
-  InvalidRequestBodyReadTimeoutMs(Int)
-  InvalidHandlerTimeoutMs(Int)
-  InvalidShutdownTimeoutMs(Int)
-  InvalidWebSocketMaxMessageBytes(Int)
-  InvalidWebSocketOutgoingQueueCapacity(Int)
-  InvalidWebSocketReadTimeoutMs(Int)
-} derive(ToJson, @debug.Debug)
-pub fn NativeServeError::to_json(Self) -> Json
+  InvalidMaxConnections(Int32)
+  InvalidMaxRequestBodyBytes(Int32)
+  InvalidRequestBodyReadTimeoutMs(Int32)
+  InvalidHandlerTimeoutMs(Int32)
+  InvalidShutdownTimeoutMs(Int32)
+  InvalidWebSocketMaxMessageBytes(Int32)
+  InvalidWebSocketOutgoingQueueCapacity(Int32)
+  InvalidWebSocketReadTimeoutMs(Int32)
+}
+pub fn NativeServeError::to_json(Self) -> @json.Json
 pub fn NativeServeError::to_repr(Self) -> @debug.Repr
 
-pub suberror NetworkError derive(@debug.Debug)
+#derive(@debug.Debug)
+pub suberror NetworkError
 pub fn NetworkError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
@@ -73,7 +78,7 @@ pub fn App::put(Self, String, async (Event) -> &@core.Responder) -> Unit
 pub fn App::put_raw(Self, String, HttpHandler) -> Unit
 pub fn App::resource(Self, String, ResourceConfig) -> Unit
 pub fn App::routes(Self) -> Iter[(String, String)]
-pub async fn App::serve(Self, port~ : Int, shutdown? : @aqueue.Queue[Unit], options? : NativeServeOptions) -> Unit
+pub async fn App::serve(Self, port~ : Int32, shutdown? : @aqueue.Queue[Unit], options? : NativeServeOptions) -> Unit
 pub async fn App::serve_on(Self, @http.Server, shutdown? : @aqueue.Queue[Unit], options? : NativeServeOptions) -> Unit
 pub fn App::set_not_found_handler(Self, HttpHandler) -> Unit
 pub fn App::static_assets(Self, String, &ServeStaticProvider) -> Unit
@@ -91,11 +96,11 @@ pub(all) struct Event {
 pub fn[T : @json.FromJson] Event::json(Self) -> T raise
 pub fn Event::param(Self, String) -> StringView?
 pub fn Event::param_decoded(Self, String) -> String?
-pub fn Event::param_int(Self, String) -> Int?
+pub fn Event::param_int(Self, String) -> Int32?
 pub fn Event::param_int64(Self, String) -> Int64?
 pub fn Event::request_id(Self) -> String?
 pub fn Event::require_param(Self, String) -> String raise
-pub fn Event::require_param_int(Self, String) -> Int raise
+pub fn Event::require_param_int(Self, String) -> Int32 raise
 pub fn Event::require_param_int64(Self, String) -> Int64 raise
 pub fn[T : @json.FromJson] Event::try_json(Self) -> Result[T, String]
 
@@ -106,17 +111,17 @@ pub(all) struct Middleware(async (Event, MiddlewareNext) -> &@core.Responder nor
 pub(all) struct MiddlewareNext(async () -> &@core.Responder noraise)
 
 pub struct NativeServeOptions {
-  max_connections : Int?
-  max_request_body_bytes : Int?
-  request_body_read_timeout_ms : Int?
-  handler_timeout_ms : Int?
-  shutdown_timeout_ms : Int?
-  websocket_outgoing_queue_capacity : Int?
+  max_connections : Int32?
+  max_request_body_bytes : Int32?
+  request_body_read_timeout_ms : Int32?
+  handler_timeout_ms : Int32?
+  shutdown_timeout_ms : Int32?
+  websocket_outgoing_queue_capacity : Int32?
   websocket_overflow_policy : @websocket.NativeWebSocketOverflowPolicy?
-  websocket_read_timeout_ms : Int?
-  websocket_max_message_bytes : Int?
+  websocket_read_timeout_ms : Int32?
+  websocket_max_message_bytes : Int32?
 }
-pub fn NativeServeOptions::NativeServeOptions(max_connections? : Int, max_request_body_bytes? : Int, request_body_read_timeout_ms? : Int, handler_timeout_ms? : Int, shutdown_timeout_ms? : Int, websocket_outgoing_queue_capacity? : Int, websocket_overflow_policy? : @websocket.NativeWebSocketOverflowPolicy, websocket_read_timeout_ms? : Int, websocket_max_message_bytes? : Int) -> Self raise
+pub fn NativeServeOptions::NativeServeOptions(max_connections? : Int32, max_request_body_bytes? : Int32, request_body_read_timeout_ms? : Int32, handler_timeout_ms? : Int32, shutdown_timeout_ms? : Int32, websocket_outgoing_queue_capacity? : Int32, websocket_overflow_policy? : @websocket.NativeWebSocketOverflowPolicy, websocket_read_timeout_ms? : Int32, websocket_max_message_bytes? : Int32) -> Self raise
 
 pub struct ResourceConfig {
   list : (async (Event) -> &@core.Responder)?

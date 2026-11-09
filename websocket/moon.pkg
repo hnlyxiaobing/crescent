@@ -2,7 +2,6 @@ import {
   "moonbitlang/async",
   "moonbitlang/async/http",
   "moonbitlang/async/websocket" @async_websocket,
-  "moonbitlang/core/buffer",
   "moonbitlang/core/debug",
   "moonbitlang/core/encoding/utf8",
 }
@@ -12,7 +11,10 @@ import {
   "moonbitlang/async/os_error",
 } for "wbtest"
 
-warnings = "+missing_doc+unnecessary_annotation"
+// The cleanup defers are semantically wrapped in @async.protect_from_cancel;
+// current lint does not recognize the public re-export as a shield.
+
+warnings = "+missing_doc+unnecessary_annotation-98"
 
 // Native-only (depends on moonbitlang/async/{http,websocket}).
 

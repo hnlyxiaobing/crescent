@@ -3,6 +3,7 @@
 ///
 /// Using this enum instead of raw strings prevents typos like "DLETE" or "OPTONS"
 /// and enables pattern matching in handlers.
+#derive(Eq, Debug)
 pub(all) enum HttpMethod {
   Get
   Head
@@ -15,7 +16,7 @@ pub(all) enum HttpMethod {
   Connect
   /// For wildcard routing and non-standard methods
   Other(String)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend HttpMethod with Eq::{not_equal, equal}

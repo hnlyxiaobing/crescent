@@ -13,8 +13,8 @@ pub(all) struct MultipartFormValue {
 fn find_boundary(
   bytes : BytesView,
   boundary : BytesView,
-  start_index : Int,
-) -> Int {
+  start_index : Int32,
+) -> Int32 {
   let len = bytes.length()
   let boundary_len = boundary.length()
   if start_index + boundary_len > len {
@@ -98,7 +98,7 @@ fn parse_disposition_value(directive : String, key : String) -> String? {
   // Quoted value
   if rest.length() >= 2 &&
     rest.has_prefix("\"") &&
-    rest.view().to_owned().has_suffix("\"") {
+    rest.exact_view().to_owned().has_suffix("\"") {
     Some(rest[1:rest.length() - 1].to_owned())
   } else {
     Some(rest.to_owned())
@@ -128,7 +128,7 @@ fn split_header_line(line : String) -> (String, String)? {
 ///|
 fn split_semicolon_quoted(input : String) -> Array[String] {
   let result : Array[String] = []
-  let view = input.view()
+  let view = input.exact_view()
   let len = view.length()
   let mut start = 0
   let mut in_quote = false
@@ -204,7 +204,7 @@ fn parse_multipart_part(
     }
   }
   if name != "" {
-    let value = { filename, content_type, data: body_bytes }
+    let value = { filename, content_type, data: body_bytes, }
     match res.get(name) {
       Some(existing) => existing.push(value)
       None => res.set(name, [value])

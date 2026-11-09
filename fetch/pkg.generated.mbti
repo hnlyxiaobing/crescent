@@ -30,28 +30,31 @@ pub async fn request(@core.HttpRequest) -> @core.HttpResponse
 pub async fn trace(String, data? : &@core.Responder, headers? : Map[String, String], credentials? : FetchCredentials, mode? : FetchMode) -> @core.HttpResponse
 
 // Errors
+#derive(@debug.Debug)
 pub suberror FetchError {
   RequestFailed(String)
-} derive(@debug.Debug)
+}
 pub fn FetchError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) enum FetchCredentials {
   Omit
   SameOrigin
   Include
-} derive(Eq, @debug.Debug)
+}
 pub fn FetchCredentials::equal(Self, Self) -> Bool
 pub fn FetchCredentials::not_equal(Self, Self) -> Bool
 pub fn FetchCredentials::to_repr(Self) -> @debug.Repr
 pub fn FetchCredentials::to_string(Self) -> String
 
+#derive(Eq, @debug.Debug)
 pub(all) enum FetchMode {
   Cors
   NoCors
   SameOrigin
   Navigate
-} derive(Eq, @debug.Debug)
+}
 pub fn FetchMode::equal(Self, Self) -> Bool
 pub fn FetchMode::not_equal(Self, Self) -> Bool
 pub fn FetchMode::to_repr(Self) -> @debug.Repr

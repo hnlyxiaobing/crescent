@@ -1,9 +1,10 @@
 ///|
 #warnings("-unnecessary_annotation")
+#derive(FromJson, ToJson, Eq, Debug)
 struct TestUser {
   name : String
-  age : Int
-} derive(FromJson, ToJson, Eq, Debug)
+  age : Int32
+}
 
 ///|
 test "HttpRequest::json parses struct from body" {
@@ -14,7 +15,7 @@ test "HttpRequest::json parses struct from body" {
     raw_body=b"{\"name\":\"Alice\",\"age\":30}",
   )
   let user : TestUser = req.json()
-  let expected_user = TestUser::{ name: "Alice", age: 30 }
+  let expected_user = TestUser::{ name: "Alice", age: 30, }
   assert_eq(user, expected_user)
 }
 
@@ -71,7 +72,7 @@ test "HttpRequest::json parses empty body as error" {
 
 ///|
 test "HttpResponse::json_value sets content type and body" {
-  let user : TestUser = { name: "Alice", age: 30 }
+  let user : TestUser = { name: "Alice", age: 30, }
   let res = @crescent.HttpResponse::ok().json_value(user)
   inspect(res.status_code, content="OK")
   debug_inspect(
@@ -84,8 +85,8 @@ test "HttpResponse::json_value sets content type and body" {
 ///|
 test "HttpResponse::json_value with array" {
   let users : Array[TestUser] = [
-    { name: "Alice", age: 30 },
-    { name: "Bob", age: 25 },
+    { name: "Alice", age: 30, },
+    { name: "Bob", age: 25, },
   ]
   let res = @crescent.HttpResponse::ok().json_value(users)
   inspect(

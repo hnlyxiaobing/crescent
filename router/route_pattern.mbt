@@ -1,5 +1,6 @@
 ///|
 /// A single segment of a pre-compiled route pattern.
+#derive(Eq, Debug)
 pub enum RouteSegment {
   /// A literal path segment that must match exactly (e.g. "api", "users")
   Static(String)
@@ -9,7 +10,7 @@ pub enum RouteSegment {
   Wildcard
   /// A multi-level wildcard that captures zero or more segments (e.g. "**")
   GlobStar
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend RouteSegment with Eq::{not_equal, equal}
@@ -19,6 +20,7 @@ pub extend RouteSegment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A pre-compiled route pattern, parsed once at registration time.
+#derive(Debug)
 pub struct CompiledRoute {
   /// The original template string (for debugging/display)
   priv template : String
@@ -26,7 +28,7 @@ pub struct CompiledRoute {
   segments : Array[RouteSegment]
   /// True if the route is static (no parameters or wildcards)
   is_static : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend CompiledRoute with @moonbitlang/core/debug.Debug::{to_repr}
@@ -51,7 +53,7 @@ pub fn CompiledRoute::CompiledRoute(template : String) -> CompiledRoute {
       segments.push(Static(part.to_owned()))
     }
   }
-  { template, segments, is_static }
+  { template, segments, is_static, }
 }
 
 ///|
@@ -72,8 +74,8 @@ pub fn CompiledRoute::match_path(
 fn match_compiled_segments(
   segments : Array[RouteSegment],
   path_parts : Array[StringView],
-  seg_idx : Int,
-  path_idx : Int,
+  seg_idx : Int32,
+  path_idx : Int32,
   params : Map[String, StringView],
 ) -> Map[String, StringView]? {
   // Both exhausted: match succeeded

@@ -1,5 +1,6 @@
 ///|
 /// An outgoing HTTP response containing the status code, headers, cookies, and body.
+#derive(Debug(ignore=Bytes))
 pub(all) struct HttpResponse {
   /// The HTTP status code (e.g., `OK`, `NotFound`, `InternalServerError`).
   mut status_code : StatusCode
@@ -10,7 +11,7 @@ pub(all) struct HttpResponse {
   /// The raw response body bytes.
   mut raw_body : Bytes
   // TODO: better error message when using skip
-} derive(Debug(ignore=Bytes))
+}
 
 ///|
 pub extend HttpResponse with @moonbitlang/core/debug.Debug::{to_repr}
@@ -112,7 +113,7 @@ pub fn HttpResponse::set_cookie(
   self : HttpResponse,
   name : String,
   value : String,
-  max_age? : Int,
+  max_age? : Int32,
   path? : String,
   domain? : String,
   secure? : Bool,

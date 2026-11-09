@@ -22,6 +22,7 @@ pub fn Html::output(Self, @buffer.Buffer) -> Unit
 pub fn Html::output_bytes(Self) -> Bytes?
 pub impl Responder for Html
 
+#derive(Eq, @debug.Debug)
 pub(all) enum HttpMethod {
   Get
   Head
@@ -33,7 +34,7 @@ pub(all) enum HttpMethod {
   Trace
   Connect
   Other(String)
-} derive(Eq, @debug.Debug)
+}
 pub fn HttpMethod::equal(Self, Self) -> Bool
 pub fn HttpMethod::from_string(String) -> Self
 pub fn HttpMethod::not_equal(Self, Self) -> Bool
@@ -43,13 +44,14 @@ pub fn HttpMethod::to_repr(Self) -> @debug.Repr
 pub fn HttpMethod::to_string(Self) -> String
 pub impl Show for HttpMethod
 
+#derive(@debug.Debug)
 pub(all) struct HttpRequest {
   http_method : HttpMethod
   url : String
   headers : Map[String, String]
   mut raw_body : Bytes
   // private fields
-} derive(@debug.Debug)
+}
 pub fn HttpRequest::HttpRequest(HttpMethod, String, Map[String, String], raw_body? : Bytes) -> Self
 pub fn[T : BodyReader] HttpRequest::body(Self) -> T raise
 pub fn HttpRequest::content_type(Self) -> String?
@@ -69,12 +71,13 @@ pub fn HttpRequest::to_repr(Self) -> @debug.Repr
 pub fn[T : @json.FromJson] HttpRequest::try_json(Self) -> Result[T, String]
 pub impl Responder for HttpRequest
 
+#derive(@debug.Debug)
 pub(all) struct HttpResponse {
   mut status_code : StatusCode
   headers : Map[String, String]
   cookies : Map[String, @cookie.CookieItem]
   mut raw_body : Bytes
-} derive(@debug.Debug)
+}
 pub fn HttpResponse::HttpResponse(status_code~ : StatusCode, headers? : Map[String, String], cookies? : Map[String, @cookie.CookieItem], raw_body? : Bytes) -> Self
 pub fn HttpResponse::bad_request() -> Self
 pub fn HttpResponse::body(Self, &Responder) -> Self
@@ -84,8 +87,8 @@ pub fn HttpResponse::error(StatusCode, String) -> Self
 pub fn HttpResponse::forbidden() -> Self
 pub fn HttpResponse::header(Self, String, String) -> Self
 pub fn HttpResponse::internal_server_error() -> Self
-pub fn HttpResponse::json(Self, &ToJson) -> Self
-pub fn[T : ToJson] HttpResponse::json_value(Self, T) -> Self
+pub fn HttpResponse::json(Self, &@json.ToJson) -> Self
+pub fn[T : @json.ToJson] HttpResponse::json_value(Self, T) -> Self
 pub fn HttpResponse::no_content() -> Self
 pub fn HttpResponse::not_found() -> Self
 pub fn HttpResponse::ok() -> Self
@@ -97,12 +100,13 @@ pub fn HttpResponse::redirect(String) -> Self
 pub fn HttpResponse::redirect_307(String) -> Self
 pub fn HttpResponse::redirect_308(String) -> Self
 pub fn HttpResponse::redirect_temporary(String) -> Self
-pub fn HttpResponse::set_cookie(Self, String, String, max_age? : Int, path? : String, domain? : String, secure? : Bool, http_only? : Bool, same_site? : @cookie.SameSiteOption) -> Unit
+pub fn HttpResponse::set_cookie(Self, String, String, max_age? : Int32, path? : String, domain? : String, secure? : Bool, http_only? : Bool, same_site? : @cookie.SameSiteOption) -> Unit
 pub fn HttpResponse::to_repr(Self) -> @debug.Repr
 pub fn HttpResponse::to_responder(Self) -> &Responder
 pub fn HttpResponse::unauthorized() -> Self
 pub impl Responder for HttpResponse
 
+#derive(Eq, @debug.Debug, @json.ToJson)
 pub(all) enum StatusCode {
   Continue
   SwitchingProtocols
@@ -166,23 +170,24 @@ pub(all) enum StatusCode {
   LoopDetected
   NotExtended
   NetworkAuthenticationRequired
-  Custom(Int)
-} derive(Eq, ToJson, @debug.Debug)
+  Custom(Int32)
+}
 pub fn StatusCode::equal(Self, Self) -> Bool
-pub fn StatusCode::from_int(Int) -> Self
+pub fn StatusCode::from_int(Int32) -> Self
 pub fn StatusCode::not_equal(Self, Self) -> Bool
 pub fn StatusCode::output(Self, &Logger) -> Unit
-pub fn StatusCode::to_int(Self) -> Int
-pub fn StatusCode::to_json(Self) -> Json
+pub fn StatusCode::to_int(Self) -> Int32
+pub fn StatusCode::to_json(Self) -> @json.Json
 pub fn StatusCode::to_repr(Self) -> @debug.Repr
 pub fn StatusCode::to_string(Self) -> String
 pub impl Show for StatusCode
 
-type TryJsonTestUser derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
+type TryJsonTestUser
 pub fn TryJsonTestUser::equal(Self, Self) -> Bool
-pub fn TryJsonTestUser::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn TryJsonTestUser::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn TryJsonTestUser::not_equal(Self, Self) -> Bool
-pub fn TryJsonTestUser::to_json(Self) -> Json
+pub fn TryJsonTestUser::to_json(Self) -> @json.Json
 pub fn TryJsonTestUser::to_repr(Self) -> @debug.Repr
 
 // Type aliases
@@ -195,7 +200,7 @@ pub impl BodyReader for String
 pub impl BodyReader for FixedArray[Byte]
 pub impl BodyReader for Bytes
 pub impl BodyReader for Array[Byte]
-pub impl BodyReader for Json
+pub impl BodyReader for @json.Json
 
 pub(open) trait Responder {
   fn options(Self, HttpResponse) -> Unit
@@ -204,6 +209,6 @@ pub(open) trait Responder {
 }
 pub impl Responder for String
 pub impl Responder for Bytes
-pub impl Responder for Json
-pub impl Responder for &ToJson
+pub impl Responder for @json.Json
+pub impl Responder for &@json.ToJson
 pub impl Responder for StringView

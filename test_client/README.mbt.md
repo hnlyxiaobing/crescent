@@ -158,10 +158,11 @@ raising, so test assertions stay simple.
 ```mbt check
 ///|
 #warnings("-unnecessary_annotation")
+#derive(FromJson, ToJson)
 struct Echo {
   name : String
-  count : Int
-} derive(FromJson, ToJson)
+  count : Int32
+}
 
 ///|
 async test "body_json decodes a typed struct" {

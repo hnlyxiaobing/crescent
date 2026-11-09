@@ -1,8 +1,9 @@
 ///|
 /// Error type for handlers that want automatic HTTP error responses.
+#derive(Debug)
 pub(all) suberror HttpError {
   HttpError(StatusCode, String)
-} derive(Debug)
+}
 
 ///|
 pub extend HttpError with @moonbitlang/core/debug.Debug::{to_repr}

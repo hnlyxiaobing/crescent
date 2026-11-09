@@ -3,7 +3,6 @@ import {
   "hnlyxiaobing/crescent/uri",
   "hnlyxiaobing/crescent/httputil",
   "moonbitlang/async/http",
-  "moonbitlang/core/buffer",
   "moonbitlang/core/debug",
   "moonbitlang/core/encoding/utf8",
 }
